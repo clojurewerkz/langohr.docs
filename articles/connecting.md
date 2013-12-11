@@ -39,6 +39,8 @@ Map options that Langohr will recognize are
  * `:connection-timeout`
  * `:ssl
  * `:ssl-context
+ * `:executor
+ * `:automatically-recover
 
 To connect to RabbitMQ with a map of parameters, use the `langohr.core/connect` function:
 
@@ -50,6 +52,14 @@ To connect to RabbitMQ with a map of parameters, use the `langohr.core/connect` 
 
 ;; connect with the given settings
 (rmq/connect {:host "messaging.dev.megacorp.internal" :username "joe" :password "t0ps3krEt"})
+
+;; connect with the custom thread pool
+(import java.util.concurrent.Executors)
+(rmq/connect {:executor (Executors/newFixedThreadPool 16)})
+
+;; connect without automatic connectivity recovery
+;; default value for automatically-recover is true
+(rmq/connect {:automatically-recover false})
 ```
 
 The function returns a connection instance that is used to open channels. More about channels later in this guide.
