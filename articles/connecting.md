@@ -53,12 +53,12 @@ To connect to RabbitMQ with a map of parameters, use the `langohr.core/connect` 
 ;; connect with the given settings
 (rmq/connect {:host "messaging.dev.megacorp.internal" :username "joe" :password "t0ps3krEt"})
 
-;; connect with the custom thread pool
+;; connect with a custom thread pool
 (import java.util.concurrent.Executors)
 (rmq/connect {:executor (Executors/newFixedThreadPool 16)})
 
-;; connect without automatic connectivity recovery
-;; default value for automatically-recover is true
+;; disable automatic connection recovery
+;; (on by default)
 (rmq/connect {:automatically-recover false})
 ```
 
