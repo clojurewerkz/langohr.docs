@@ -133,7 +133,6 @@ The documentation is organized as [a number of guides](/articles/guides.html), c
 
 We recommend that you read the following guides first, if possible, in this order:
 
- * [Queues and Consumers](/articles/queues.html)
- * [Exchanges and Publishing](/articles/exchanges.html)
- * [Bindings](/articles/bindings.html)
+ * [Error Handling and Recovery](/articles/error_handling.html)
+ * [Using TLS (SSL) Connections](/articles/tls.html)
  * [RabbitMQ Extensions to AMQP 0.9.1](/articles/extensions.html)
