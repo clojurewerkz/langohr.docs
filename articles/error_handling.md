@@ -101,9 +101,7 @@ every 5 seconds. Currently there is no limit on the number of reconnection
 attempts.
 
 To completely disable automatic connection recovery, pass
-`:automatically-recover` as `false` `langohr.core/connect`. To only
-disable topology recovery, pass `:automatically-recover-topology` as
-`false`. Then Langohr will only recover connections and channels.
+`:automatically-recover` as `false` `langohr.core/connect`.
 
 ### Topology Recovery
 
@@ -120,7 +118,27 @@ Langohr provides a feature known as "automatic topology recovery" that performs 
 after connection recovery, while taking care of some of the more tricky details
 such as recovery of server-named queues with consumers.
 
-Currently the automatic recovery mode is not configurable.
+To recover your topology, for every channel Langohr will
+
+ * Re-declare queues originally declared on it
+ * Re-declare exchanges originally declared on it
+ * Re-establish bindings
+ * Re-register consumers
+
+**Server-named queues will be declared with new names** and their bindings and consumers
+will be updated accordingly.
+
+Langohr will not track inter-channel dependencies, e.g. when a
+server-named queue was declared on channel 10 but used to consume
+messages from on channel 20. This means that for automatic topology
+recovery to work, all operations on a queue (declaration, binding,
+consuming messages, etc) **must happen on the same channel**, otherwise
+there is a possibility of the queue not being declared by the time another
+channel recovers and tries to use it.
+
+To disable topology recovery, pass `:automatically-recover-topology`
+as `false`. Then Langohr will only recover connections and channels
+(given that automatic recovery in general is not disabled).
 
 
 ## Channel-level Exceptions
