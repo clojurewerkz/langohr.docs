@@ -199,7 +199,7 @@ A few channel-level exceptions are common and deserve more attention.
     </ul>
   </dd>
   <dt>Example RabbitMQ error message</dt>
-  <dd>RESOURCE_LOCKED - cannot obtain exclusive access to locked queue 'amqpgem.examples.queue' in vhost '/'</dd>
+  <dd>RESOURCE_LOCKED - cannot obtain exclusive access to locked queue 'langohr.examples.queue' in vhost '/'</dd>
 </dl>
 
 #### 404 Not Found
@@ -217,9 +217,15 @@ A few channel-level exceptions are common and deserve more attention.
 
 <dl>
   <dt>Description</dt>
-  <dd>The client attempted to work with a server entity to which it has no access due to security settings.</dd>
+  <dd>
+    The client attempted to work with a server entity to which it has no access due
+    to security settings.
+  </dd>
   <dt>What might cause it</dt>
-  <dd>Application tries to access a queue or exchange it has no permissions for (or right kind of permissions, for example, write permissions)</dd>
+  <dd>
+    Application tries to access a queue or exchange it has no permissions for
+    (or right kind of permissions, for example, write permissions)
+  </dd>
   <dt>Example RabbitMQ error message</dt>
   <dd>ACCESS_REFUSED - access to queue 'langohr.examples.channel_exception' in vhost 'langohr_testbed' refused for user 'langohr_reader'</dd>
 </dl>
