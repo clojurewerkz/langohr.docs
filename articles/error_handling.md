@@ -39,7 +39,7 @@ system configuration tools like Chef or Puppet misconfigurations
 happen and the broker might also be down. Error detection should
 happen as early as possible.
 
-`langohr.core/connect` will raise `java.net.ConnectException` if a
+`langohr.core/connect` will raise `java.net.ConnectException` or `java.net.UnknownHostException` if a
 connection fails. Code that catches it can write to a log about the
 issue or use retry to execute the begin block one more time. Because
 initial connection failures are due to misconfiguration or network
@@ -47,7 +47,14 @@ outage, reconnection to the same endpoint (hostname, port, vhost
 combination) may result in the same issue over and over.
 
 ``` clojure
-;; TBD
+
+(require '[langohr.core :as rmq])
+
+(rmq/connect {:host "127.0.0.1" :port 2887})
+;; throws java.net.ConnectException due to incorrect port
+
+(rmq/connect {:host "asd88asd.megacorp.com"})
+;; throws java.net.UnknownHostException due to incorrect host
 ```
 
 
