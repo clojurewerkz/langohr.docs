@@ -94,7 +94,7 @@ This guide covers:
  * Durability of messages
 
 
-### [Error Handling and Recovery](/articles/error_handling.html) (TBD)
+### [Error Handling and Recovery](/articles/error_handling.html)
 
 This guide covers:
 
