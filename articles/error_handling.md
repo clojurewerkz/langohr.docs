@@ -96,8 +96,9 @@ you.
 
 ### Automatic Recovery
 
-When Langohr detects TCP connection failure, it will try to reconnect
-every 5 seconds. Currently there is no limit on the number of reconnection
+When **automatic recovery** is enabled and Langohr detects TCP
+connection failure, it will try to reconnect every 5
+seconds. Currently there is no limit on the number of reconnection
 attempts.
 
 To completely disable automatic connection recovery, pass
@@ -139,6 +140,65 @@ channel recovers and tries to use it.
 To disable topology recovery, pass `:automatically-recover-topology`
 as `false`. Then Langohr will only recover connections and channels
 (given that automatic recovery in general is not disabled).
+
+### Manual Topology Recovery
+
+It is possible to use recovery hooks (callbacks) to recover a topology manually.
+Callbacks are registered on connections and channels using `langohr.core/on-recovery`:
+
+``` clojure
+(rmq/on-recovery ch (fn [ch]
+                          (start-consumer ch q)))
+```
+
+During recovery, the callback will be invoked **after connection and channels have been recovered**
+and passed the connection or channel it was registered with.
+
+The following example demonstrates how a queue with a consumer is
+recovered using a recovery hook:
+
+``` clojure
+(ns clojurewerkz.langohr.examples.recovery.example1
+  (:gen-class)
+  (:require [langohr.core      :as rmq]
+            [langohr.channel   :as lch]
+            [langohr.queue     :as lq]
+            [langohr.exchange  :as lx]
+            [langohr.consumers :as lc]
+            [langohr.basic     :as lb])
+  (:import java.io.IOException
+           com.rabbitmq.client.AlreadyClosedException))
+
+(defn message-handler
+  [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
+  (println (format "[consumer] Received a message: %s"
+                   (String. payload "UTF-8"))))
+
+(defn start-consumer
+  [ch ^String q]
+  (lq/declare ch q :exclusive false :auto-delete false)
+    (lc/subscribe ch q message-handler :auto-ack true))
+
+(defn -main
+  [& args]
+  (let [conn (rmq/connect {:automatically-recover true :automatically-recover-topology false})
+        ch   (lch/open conn)
+        q    "langohr.examples.recovery.example1.q"
+        x    ""]
+    (start-consumer ch q)
+    (rmq/on-recovery ch (fn [ch]
+                          (start-consumer ch q)))
+    ;; publish messages that are routed to langohr.examples.recovery.example1.q
+    ;; and demonstrate consumer recovery
+    (while true
+      (Thread/sleep 1000)
+      (try
+        (lb/publish ch x q "hello")
+        (catch AlreadyClosedException ace
+          (comment "Happens when you publish while the connection is down"))
+        (catch IOException ioe
+          (comment "ditto"))))))
+```
 
 
 ## Channel-level Exceptions
