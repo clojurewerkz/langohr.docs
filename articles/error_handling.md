@@ -98,8 +98,10 @@ When Langohr detects TCP connection failure, it will try to reconnect
 every 5 seconds. Currently there is no limit on the number of reconnection
 attempts.
 
-To completely disable automatic connection recovery, pass `:automatically-recover` as `false`
-`langohr.core/connect`. To only disable topology
+To completely disable automatic connection recovery, pass
+`:automatically-recover` as `false` `langohr.core/connect`. To only
+disable topology recovery, pass `:automatically-recover-topology` as
+`false`. Then Langohr will only recover connections and channels.
 
 
 ### Automatic Recovery
