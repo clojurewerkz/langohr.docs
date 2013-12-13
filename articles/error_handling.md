@@ -128,14 +128,28 @@ a queue that does not exist).
 
 With Langohr, channel-level exceptions are raised as Java exceptions
 (`IOException` or `ShutdownSignalException`) that provide access to
-the underlying `channel.close` method information:
+the underlying `channel.close` method information.
+
+Shutdown exceptions can be inspected using functions in the `langohr.shutdown`
+namespace:
 
 ``` clojure
-;; TBD
-```
+(require '[langohr.queue    :as lhq])
+(require '[langohr.shutdown :as lh])
 
-``` clojure
-;; TBD
+(try
+  ;; bind a non-existent queue
+  (lhq/bind ch "ugggggh" "amq.fanout")
+  (catch java.net.IOException ioe
+    (lh/soft-error? ioe)
+    ;= true, it's possible to recover from this exception
+    (lh/initiated-by-broker? ioe)
+    ;= true, RabbitMQ closed the channel
+    (lh/initiated-by-application? ioe)
+    ;= false
+    (println (lh/reason-of ioe))
+    (println (lh/channel-of ioe))
+    (println (lh/connection-of ioe))))
 ```
 
 
