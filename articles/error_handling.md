@@ -66,7 +66,9 @@ failure. Handling authentication failure is very similar to handling
 initial TCP connection failure:
 
 ``` clojure
-;; TBD
+(rmq/connect {:uri "amqp://sdfoiu:sd899937@hub.megacorp.local:5672/%2F"})
+;; throws com.rabbitmq.client.PossibleAuthenticationFailureException
+;; due to invalid credentials
 ```
 
 In case you are wondering why the exception name has "possible" in it:
@@ -77,10 +79,11 @@ before AMQP connection is open. In practice, however, when broker
 closes TCP connection between successful TCP connection and before
 AMQP connection is open, it means that authentication has failed.
 
-RabbitMQ 3.2 introduces [authentication failure notifications](http://www.rabbitmq.com/auth-notification.html)
-which Langohr supports. When connecting to RabbitMQ 3.2 or later, Langohr will
-raise `AuthenticationFailureException` when it receives a proper
-authentication failure notification.
+RabbitMQ 3.2 introduces [authentication failure
+notifications](http://www.rabbitmq.com/auth-notification.html) which
+Langohr supports. When connecting to RabbitMQ 3.2 or later, Langohr
+will raise `com.rabbitmq.client.AuthenticationFailureException` when
+it receives a proper authentication failure notification.
 
 
 ## Network Connection Failures
