@@ -104,6 +104,17 @@ attempts.
 To completely disable automatic connection recovery, pass
 `:automatically-recover` as `false` `langohr.core/connect`.
 
+To determine whether a connection uses automatic recovery, use
+`langohr.core/automatically-recover?`:
+
+``` clojure
+(require '[langohr.core :as rmq])
+
+(let [c (rmq/connect)]
+  (rmq/automatically-recover? c))
+;= true
+```
+
 ### Topology Recovery
 
 Many applications use the same recovery strategy that consists of the following steps:
