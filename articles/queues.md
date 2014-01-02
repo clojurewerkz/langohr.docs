@@ -944,14 +944,15 @@ Most functions related to queues are found in two Langohr namespaces:
 
 ## What to Read Next
 
-The documentation is organized as [a number of guides](/articles/guides.html), covering various topics.
+The documentation is organized as [a number of guides](/articles/guides.md), covering various topics.
 
 We recommend that you read the following guides first, if possible, in this order:
 
- * [Exchanges and Publishing](/articles/exchanges.html)
- * [Bindings](/articles/bindings.html)
- * [RabbitMQ Extensions to AMQP 0.9.1](/articles/rabbitmq_extensions.html)
- * [Durability and Related Matters](/articles/durability.html)
- * [Error Handling and Recovery](/articles/error_handling.html)
- * [Troubleshooting](/articles/troubleshooting.html)
- * [Using TLS (SSL) Connections](/articles/tls.html)
+ * [Exchanges and Publishing](/articles/exchanges.md)
+ * [Bindings](/articles/bindings.md)
+ * [RabbitMQ Extensions to AMQP 0.9.1](/articles/rabbitmq_extensions.md)
+ * [Durability and Related Matters](/articles/durability.md)
+ * [Error Handling and Recovery](/articles/error_handling.md)
+ * [Troubleshooting](/articles/troubleshooting.md)
+ * [Using TLS (SSL) Connections](/articles/tls.md)
+
