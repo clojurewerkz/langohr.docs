@@ -177,15 +177,15 @@ will use its value as RabbitMQ connection URI.
 
 ## What to Read Next
 
-The documentation is organized as [a number of guides](/articles/guides.html), covering various topics.
+The documentation is organized as [a number of guides](/articles/guides.md), covering various topics.
 
 We recommend that you read the following guides first, if possible, in this order:
 
- * [Queues and Consumers](/articles/queues.html)
- * [Exchanges and Publishing](/articles/exchanges.html)
- * [Bindings](/articles/bindings.html)
- * [RabbitMQ Extensions to AMQP 0.9.1](/articles/rabbitmq_extensions.html)
- * [Durability and Related Matters](/articles/durability.html)
- * [Error Handling and Recovery](/articles/error_handling.html)
- * [Troubleshooting](/articles/troubleshooting.html)
- * [Using TLS (SSL) Connections](/articles/tls.html)
+ * [Queues and Consumers](/articles/queues.md)
+ * [Exchanges and Publishing](/articles/exchanges.md)
+ * [Bindings](/articles/bindings.md)
+ * [RabbitMQ Extensions to AMQP 0.9.1](/articles/rabbitmq_extensions.md)
+ * [Durability and Related Matters](/articles/durability.md)
+ * [Error Handling and Recovery](/articles/error_handling.md)
+ * [Troubleshooting](/articles/troubleshooting.md)
+ * [Using TLS (SSL) Connections](/articles/tls.md)
