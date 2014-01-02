@@ -10,7 +10,7 @@ layout: article
 We recommend that you read these guides, if possible, in this order:
 
 
-###  [Getting started](/articles/getting_started.html)
+###  [Getting started](/articles/getting_started.md)
 
 An overview of Langohr with a quick tutorial that helps you to get started with it. It should take about
 15 minutes to read and study the provided code examples.
@@ -30,7 +30,7 @@ This guide covers:
 
 
 
-### [Connecting To The Broker](/articles/connecting.html)
+### [Connecting To The Broker](/articles/connecting.md)
 
 This guide covers:
 
@@ -41,7 +41,7 @@ This guide covers:
  * How to disconnect
 
 
-### [Queues and Consumers](/articles/queues.html)
+### [Queues and Consumers](/articles/queues.md)
 
 This guide covers:
 
@@ -58,7 +58,7 @@ This guide covers:
  * Other topics related to queues
 
 
-### [Exchanges and Publishing](/articles/exchanges.html)
+### [Exchanges and Publishing](/articles/exchanges.md)
 
 This guide covers:
 
@@ -77,7 +77,7 @@ This guide covers:
  * Other topics related to exchanges and publishing
 
 
-### [Bindings](/articles/bindings.html)
+### [Bindings](/articles/bindings.md)
 
 This guide covers:
 
@@ -86,7 +86,7 @@ This guide covers:
  * Other topics related to bindings
 
 
-### [Durability and Related Matters](/articles/durability.html)
+### [Durability and Related Matters](/articles/durability.md)
 
 This guide covers:
 
@@ -94,7 +94,7 @@ This guide covers:
  * Durability of messages
 
 
-### [Error Handling and Recovery](/articles/error_handling.html)
+### [Error Handling and Recovery](/articles/error_handling.md)
 
 This guide covers:
 
@@ -103,7 +103,7 @@ This guide covers:
  * Other things that may go wrong
 
 
-### [Using TLS (SSL) Connections](/articles/tls.html)
+### [Using TLS (SSL) Connections](/articles/tls.md)
 
 This guide covers:
 
@@ -111,9 +111,9 @@ This guide covers:
 
 
 
-### [RabbitMQ Extensions to AMQP 0.9.1](/articles/extensions.html)
+### [RabbitMQ Extensions to AMQP 0.9.1](/articles/extensions.md)
 
-This guide covers [RabbitMQ extensions](http://www.rabbitmq.com/extensions.html) and how they are used in Langohr:
+This guide covers [RabbitMQ extensions](http://www.rabbitmq.com/extensions.md) and how they are used in Langohr:
 
  * How to use Publishing Confirms with Langohr
  * How to set per-queue message TTL
@@ -123,7 +123,7 @@ This guide covers [RabbitMQ extensions](http://www.rabbitmq.com/extensions.html)
  * Message *dead lettering* and the dead letter exchange
 
 
-### [Troubleshooting](/articles/troubleshooting.html) (TBD)
+### [Troubleshooting](/articles/troubleshooting.md) (TBD)
 
 This guide covers:
 
