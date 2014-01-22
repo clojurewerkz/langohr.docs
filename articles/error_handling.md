@@ -105,13 +105,13 @@ To completely disable automatic connection recovery, pass
 `:automatically-recover` as `false` `langohr.core/connect`.
 
 To determine whether a connection uses automatic recovery, use
-`langohr.core/automatically-recover?`:
+`langohr.core/automatic-recovery-enabled?`:
 
 ``` clojure
 (require '[langohr.core :as rmq])
 
 (let [c (rmq/connect)]
-  (rmq/automatically-recover? c))
+  (rmq/automatic-recovery-enabled? c))
 ;= true
 ```
 
