@@ -95,7 +95,7 @@ Langohr artifacts are [released to Clojars](https://clojars.org/com.novemberain/
 ### With Leiningen
 
 ``` clojure
-[com.novemberain/langohr "2.0.1"]
+[com.novemberain/langohr "2.3.2"]
 ```
 
 ### With Maven
@@ -115,7 +115,7 @@ And then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>langohr</artifactId>
-  <version>2.0.1</version>
+  <version>2.3.2</version>
 </dependency>
 ```
 
