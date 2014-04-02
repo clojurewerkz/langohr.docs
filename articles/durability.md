@@ -18,7 +18,7 @@ Github](https://github.com/clojurewerkz/langohr.docs).
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 2.7.x and later versions.
+This guide covers Langohr 2.8.x and later versions.
 
 ## Entity durability and message persistence
 
