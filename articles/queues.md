@@ -12,7 +12,7 @@ typical operations using Langohr. This work is licensed under a <a rel="license"
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 2.9.x.
+This guide covers Langohr 2.10.x.
 
 
 ## Queues in AMQP 0.9.1: Overview
