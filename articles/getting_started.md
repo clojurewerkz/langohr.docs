@@ -20,7 +20,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 2.11.x.
+This guide covers Langohr 3.0.x.
 
 
 ## Supported Clojure Versions
@@ -95,7 +95,7 @@ Langohr artifacts are [released to Clojars](https://clojars.org/com.novemberain/
 ### With Leiningen
 
 ``` clojure
-[com.novemberain/langohr "2.11.0"]
+[com.novemberain/langohr "3.0.0-rc1"]
 ```
 
 ### With Maven
@@ -115,7 +115,7 @@ And then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>langohr</artifactId>
-  <version>2.11.0</version>
+  <version>3.0.0-rc1</version>
 </dependency>
 ```
 
@@ -157,16 +157,20 @@ Let us begin with the classic "Hello, world" example. First, here is the code:
         ch    (lch/open conn)
         qname "langohr.examples.hello-world"]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
-    (lq/declare ch qname :exclusive false :auto-delete true)
-    (lc/subscribe ch qname message-handler :auto-ack true)
-    (lb/publish ch default-exchange-name qname "Hello!" :content-type "text/plain" :type "greetings.hi")
+    (lq/declare ch qname {:exclusive false :auto-delete true})
+    (lc/subscribe ch qname message-handler {:auto-ack true})
+    (lb/publish ch default-exchange-name qname "Hello!" {:content-type "text/plain" :type "greetings.hi"})
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
     (rmq/close conn)))
 ```
 
-This example demonstrates a very common communication scenario: *application A* wants to publish a message that will end up in a queue that *application B* listens on. In this case, the queue name is "langohr.examples.hello-world". Let us go through the code step by step:
+This example demonstrates a very common communication scenario:
+*application A* wants to publish a message that will end up in a queue
+that *application B* listens on. In this case, the queue name is
+"langohr.examples.hello-world". Let us go through the code step by
+step:
 
 ``` clojure
 (ns clojurewerkz.langohr.examples.hello-world
@@ -206,7 +210,8 @@ A few things is going on here:
   (comment ...))
 ```
 
-connects to RabbitMQ at `127.0.0.1:5672` with vhost of `"/"`, username of `"guest"` and password of `"guest"` and returns the connection.
+connects to RabbitMQ at `127.0.0.1:5672` with vhost of `"/"`, username
+of `"guest"` and password of `"guest"` and returns the connection.
 
 `rmq` is an alias for `langohr.core` (see the ns snippet above).
 
@@ -218,8 +223,10 @@ connects to RabbitMQ at `127.0.0.1:5672` with vhost of `"/"`, username of `"gues
   (comment ...))
 ```
 
-opens a new *channel*. AMQP is a multi-channeled protocol (connections have one or more channels). This makes it possible for highly concurrent
-clients to reuse a single TCP connection for multiple "virtual connections".
+opens a new *channel*. AMQP is a multi-channeled protocol (connections
+have one or more channels). This makes it possible for highly
+concurrent clients to reuse a single TCP connection for multiple
+"virtual connections".
 
 `lch` is an alias for `langohr.channel`.
 
@@ -228,21 +235,24 @@ clients to reuse a single TCP connection for multiple "virtual connections".
 The code below
 
 ``` clojure
-(lq/declare ch qname :exclusive false :auto-delete true)
+(lq/declare ch qname {:exclusive false :auto-delete true})
 ```
 
-declares a *queue* on the channel that we have just opened. Consumer applications get messages from queues. We declared this queue with the "auto-delete"
-and "non-exclusive" parameters. Basically, this means that the queue will be deleted when our little app exits.
+declares a *queue* on the channel that we have just opened. Consumer
+applications get messages from queues. We declared this queue with the
+"auto-delete" and "non-exclusive" parameters. Basically, this means
+that the queue will be deleted when our little app exits.
 
 ### Start a Consumer
 
 Now that we have a queue, we can start consuming messages from it:
 
 ``` clojure
-(lc/subscribe ch queue-name message-handler :auto-ack true)
+(lc/subscribe ch queue-name message-handler {:auto-ack true})
 ```
 
-We use `langohr.queue/subscribe` to start a consumer. This creates a new thread which will consume the messages.
+We use `langohr.queue/subscribe` to start a consumer. This creates a
+new thread which will consume the messages.
 
 Finally, here's the handling function:
 
@@ -253,20 +263,26 @@ Finally, here's the handling function:
                    (String. payload "UTF-8") delivery-tag content-type type)))
 ```
 
-It takes a channel the consumer uses, a Clojure map of message metadata and message payload as array of bytes. We turn it into a string
-and print it, as well as a few message properties.
+It takes a channel the consumer uses, a Clojure map of message
+metadata and message payload as array of bytes. We turn it into a
+string and print it, as well as a few message properties.
 
 ### Publish a Message
 
-Next we publish a message to an *exchange*. Exchanges receive messages that are sent by producers. Exchanges route messages to queues according to rules
-called *bindings*. In this particular example, there are no explicitly defined bindings. The exchange that we defined is known as the *default exchange* and
-it has implicit bindings to all queues.
+Next we publish a message to an *exchange*. Exchanges receive messages
+that are sent by producers. Exchanges route messages to queues
+according to rules called *bindings*. In this particular example,
+there are no explicitly defined bindings. The exchange that we defined
+is known as the *default exchange* and it has implicit bindings to all
+queues.
 
-Routing key is one of the *message properties* (also called attributes). The default exchange will route the message to a queue that has the same name as the message's
-routing key. This is how our message ends up in the `"langohr.examples.hello-world"` queue.
+Routing key is one of the *message properties* (also called
+attributes). The default exchange will route the message to a queue
+that has the same name as the message's routing key. This is how our
+message ends up in the `"langohr.examples.hello-world"` queue.
 
 ``` clojure
-(lb/publish ch default-exchange-name qname "Hello!" :content-type "text/plain" :type "greetings.hi")
+(lb/publish ch default-exchange-name qname "Hello!" {:content-type "text/plain" :type "greetings.hi"})
 ```
 
 ### Disconnect
@@ -284,19 +300,26 @@ This diagram demonstrates the "Hello, world" example data flow:
   <img src="http://github.com/ruby-amqp/amqp/raw/master/docs/diagrams/001_hello_world_example_routing.png" style="max-width: 100%" alt="Hello, World AMQP example data flow"/>
 </a>
 
-For the sake of simplicity, both the message producer (App I) and the consumer (App II) are running in the same JVM process. Now let us move on to a little bit more
-sophisticated example.
+For the sake of simplicity, both the message producer (App I) and the
+consumer (App II) are running in the same JVM process. Now let us move
+on to a little bit more sophisticated example.
 
 ## One-to-Many pubsub
 
 __Blabbr__ is a One-to-Many Publish/Subscribe (pubsub) Routing Example.
 
-The previous example demonstrated how a connection to a broker is made and how to do 1:1 communication using the default exchange. Now let us take a look at another common
-scenario: broadcast, or multiple consumers and one producer.
+The previous example demonstrated how a connection to a broker is made
+and how to do 1:1 communication using the default exchange. Now let us
+take a look at another common scenario: broadcast, or multiple
+consumers and one producer.
 
-A very well-known broadcast example is Twitter: every time a person tweets, followers receive a notification. Blabbr, our imaginary information network, models this scenario:
-every network member has a separate queue and publishes blabs to a separate exchange. Three Blabbr members, Joe, Aaron and Bob, follow the official NBA account on Blabbr
-to get updates about what is happening in the world of basketball. Here is the code:
+A very well-known broadcast example is Twitter: every time a person
+tweets, followers receive a notification. Blabbr, our imaginary
+information network, models this scenario: every network member has a
+separate queue and publishes blabs to a separate exchange. Three
+Blabbr members, Joe, Aaron and Bob, follow the official NBA account on
+Blabbr to get updates about what is happening in the world of
+basketball. Here is the code:
 
 ``` clojure
 (ns clojurewerkz.langohr.examples.blabbr
@@ -314,9 +337,9 @@ to get updates about what is happening in the world of basketball. Here is the c
   (let [queue-name (format "nba.newsfeeds.%s" username)
         handler    (fn [ch {:keys [content-type delivery-tag type] :as meta} ^bytes payload]
                      (println (format "[consumer] %s received %s" username (String. payload "UTF-8"))))]
-    (lq/declare ch queue-name :exclusive false :auto-delete true)
+    (lq/declare ch queue-name {:exclusive false :auto-delete true})
     (lq/bind    ch queue-name topic-name)
-    (lc/subscribe ch queue-name handler :auto-ack true)))
+    (lc/subscribe ch queue-name handler {:auto-ack true})))
 
 (defn -main
   [& args]
@@ -324,27 +347,30 @@ to get updates about what is happening in the world of basketball. Here is the c
         ch    (lch/open conn)
         ex    "nba.scores"
         users ["joe" "aaron" "bob"]]
-    (le/declare ch ex "fanout" :durable false :auto-delete true)
+    (le/declare ch ex "fanout" {:durable false :auto-delete true})
     (doseq [u users]
       (start-consumer ch ex u))
-    (lb/publish ch ex "" "BOS 101, NYK 89" :content-type "text/plain" :type "scores.update")
-    (lb/publish ch ex "" "ORL 85, ALT 88"  :content-type "text/plain" :type "scores.update")
+    (lb/publish ch ex "" "BOS 101, NYK 89" {:content-type "text/plain" :type "scores.update"})
+    (lb/publish ch ex "" "ORL 85, ALT 88"  {:content-type "text/plain" :type "scores.update"})
     (Thread/sleep 2000)
     (rmq/close ch)
     (rmq/close conn)))
 ```
 
-In this example, opening a channel is no different to opening a channel in the previous example, however, we do one extra thing: declare an exchange:
+In this example, opening a channel is no different to opening a
+channel in the previous example, however, we do one extra thing:
+declare an exchange:
 
 ``` clojure
 (let [conn  (rmq/connect)
       ch    (lch/open conn)
       ex    "nba.scores"]
-  (le/declare ch ex "fanout" :durable false :auto-delete true))
+  (le/declare ch ex "fanout" {:durable false :auto-delete true}))
 ```
 
-The exchange that we declare above is a *fanout exchange*. A fanout exchange delivers messages to all of the queues that are bound to it: exactly what we want in the
-case of Blabbr.
+The exchange that we declare above is a *fanout exchange*. A fanout
+exchange delivers messages to all of the queues that are bound to it:
+exactly what we want in the case of Blabbr.
 
 This piece of code
 
@@ -356,18 +382,22 @@ This piece of code
   (lq/bind    ch queue-name topic-name)
   (lc/subscribe ch queue-name handler :auto-ack true))```
 
-is similar to the subscription code that we used for message delivery previously, but also does a bit more: it sets up a binding between the queue and the exchange
-that was declared earlier. We need to do this to make sure that our fanout exchange routes messages to the queues of all subscribed followers.
+is similar to the subscription code that we used for message delivery
+previously, but also does a bit more: it sets up a binding between the
+queue and the exchange that was declared earlier. We need to do this
+to make sure that our fanout exchange routes messages to the queues of
+all subscribed followers.
 
-Another difference in this example is the routing key we use for publishing: it is an empty string:
+Another difference in this example is the routing key we use for
+publishing: it is an empty string.
 
 ``` clojure
-(lb/publish ch ex "" "BOS 101, NYK 89" :content-type "text/plain" :type "scores.update")
-(lb/publish ch ex "" "ORL 85, ALT 88"  :content-type "text/plain" :type "scores.update")
+(lb/publish ch ex "" "BOS 101, NYK 89" {:content-type "text/plain" :type "scores.update"})
+(lb/publish ch ex "" "ORL 85, ALT 88"  {:content-type "text/plain" :type "scores.update"})
 ```
 
-Fanout exchanges
-simply put a copy of the message in each queue bound to them and ignore the routing key
+Fanout exchanges simply put a copy of the message in each queue bound
+to them and ignore the routing key.
 
 A diagram for Blabbr looks like this:
 
@@ -379,17 +409,27 @@ A diagram for Blabbr looks like this:
 
 __Weathr__ is a Many-to-Many Topic Routing Example.
 
-So far, we have seen point-to-point communication and broadcasting. Those two communication styles are possible with many protocols, for instance, HTTP handles these
-scenarios just fine. You may ask "what differentiates AMQP?" Well, next we are going to introduce you to *topic exchanges* and routing with patterns,
-one of the features that makes AMQP very powerful.
+So far, we have seen point-to-point communication and
+broadcasting. Those two communication styles are possible with many
+protocols, for instance, HTTP handles these scenarios just fine. You
+may ask "what differentiates AMQP 0-9-1?" Well, next we are going to
+introduce you to *topic exchanges* and routing with patterns, one of
+the features that makes AMQP 0-9-1 very powerful.
 
-Our third example involves weather condition updates. What makes it different from the previous two examples is that not all of the consumers are interested in
-all of the messages. People who live in Portland usually do not care about the weather in Hong Kong (unless they are visiting soon). They are much more interested
-in weather conditions around Portland, possibly all of Oregon and sometimes a few neighbouring states.
+Our third example involves weather condition updates. What makes it
+different from the previous two examples is that not all of the
+consumers are interested in all of the messages. People who live in
+Portland usually do not care about the weather in Hong Kong (unless
+they are visiting soon). They are much more interested in weather
+conditions around Portland, possibly all of Oregon and sometimes a few
+neighbouring states.
 
-Our example features multiple consumer applications monitoring updates for different regions. Some are interested in updates for a specific city, others for a specific
-state and so on, all the way up to continents. Updates may overlap so that an update for San Diego, CA appears as an update for California, but also should show up
-on the North America updates list.
+Our example features multiple consumer applications monitoring updates
+for different regions. Some are interested in updates for a specific
+city, others for a specific state and so on, all the way up to
+continents. Updates may overlap so that an update for San Diego, CA
+appears as an update for California, but also should show up on the
+North America updates list.
 
 Here is the code:
 
@@ -409,16 +449,16 @@ Here is the code:
 (defn start-consumer
   "Starts a consumer bound to the given topic exchange in a separate thread"
   [ch topic-name queue-name]
-  (let [queue-name' (.getQueue (lq/declare ch queue-name :exclusive false :auto-delete true))
+  (let [queue-name' (:queue (lq/declare ch queue-name {:exclusive false :auto-delete true}))
         handler     (fn [ch {:keys [routing-key] :as meta} ^bytes payload]
                       (println (format "[consumer] Consumed '%s' from %s, routing key: %s" (String. payload "UTF-8") queue-name' routing-key)))]
-    (lq/bind    ch queue-name' weather-exchange :routing-key topic-name)
-    (lc/subscribe ch queue-name' handler :auto-ack true)))
+    (lq/bind    ch queue-name' weather-exchange {:routing-key topic-name})
+    (lc/subscribe ch queue-name' handler {:auto-ack true})))
 
 (defn publish-update
   "Publishes a weather update"
   [ch payload routing-key]
-  (lb/publish ch weather-exchange routing-key payload :content-type "text/plain" :type "weather.update"))
+  (lb/publish ch weather-exchange routing-key payload {:content-type "text/plain" :type "weather.update"}))
 
 (defn -main
   [& args]
@@ -430,7 +470,7 @@ Here is the code:
                    "us.tx.austin"   "#.tx.austin"
                    "it.rome"        "europe.italy.rome"
                    "asia.hk"        "asia.southeast.hk.#"}]
-    (le/declare ch weather-exchange "topic" :durable false :auto-delete true)
+    (le/declare ch weather-exchange "topic" {:durable false :auto-delete true})
     (doseq [[k v] locations]
       (start-consumer ch v k))
     (publish-update ch "San Diego update" "americas.north.us.ca.sandiego")
@@ -451,20 +491,26 @@ Here is the code:
 The first line that is different from the Blabbr example is
 
 ``` clojure
-(le/declare ch weather-exchange "topic" :durable false :auto-delete true)
+(le/declare ch weather-exchange "topic" {:durable false :auto-delete true})
 ```
 
-We use a topic exchange here. Topic exchanges are used for [multicast](http://en.wikipedia.org/wiki/Multicast) messaging where consumers indicate
-which topics they are interested in (think of it as subscribing to a feed for an individual tag in your favourite blog as opposed to the full feed).
-Routing with a topic exchange is done by specifying a *routing pattern* on binding, for example:
+We use a topic exchange here. Topic exchanges are used for
+[multicast](http://en.wikipedia.org/wiki/Multicast) messaging where
+consumers indicate which topics they are interested in (think of it as
+subscribing to a feed for an individual tag in your favourite blog as
+opposed to the full feed).  Routing with a topic exchange is done by
+specifying a *routing pattern* on binding, for example:
 
 ``` clojure
-(lq/bind ch queue-name' weather-exchange :routing-key topic-name)
+(lq/bind ch queue-name' weather-exchange {:routing-key topic-name})
 ```
 
-Here we bind a queue with the name of "americas.south" to the topic exchange declared earlier using the `langohr.queue/bind` function.  This means
-that only messages with a routing key matching `americas.south.#` will be routed to that queue. A routing pattern consists of several words separated by dots,
-in a similar way to URI path segments joined by slashes. Here are a few examples:
+Here we bind a queue with the name of "americas.south" to the topic
+exchange declared earlier using the `langohr.queue/bind` function.
+This means that only messages with a routing key matching
+`americas.south.#` will be routed to that queue. A routing pattern
+consists of several words separated by dots, in a similar way to URI
+path segments joined by slashes. Here are a few examples:
 
  * asia.southeast.thailand.bangkok
  * sports.basketball
@@ -491,7 +537,9 @@ but not
  * americas.south
  * americas.south.chile.santiago
 
-so `*` only matches a single word. The AMQP 0.9.1 specification says that topic segments (words) may contain the letters A-Z and a-z and digits 0-9.
+so `*` only matches a single word. The AMQP 0.9.1 specification says
+that topic segments (words) may contain the letters A-Z and a-z and
+digits 0-9.
 
 Another novel piece in this example is the use of a **server-named queue**:
 
@@ -500,12 +548,16 @@ Another novel piece in this example is the use of a **server-named queue**:
   (comment ...))
 ```
 
-To declare a server-named queue you pass queue name as an empty string and RabbitMQ will generate a cluster-unique name for you. The name
-will be returned to the client and you can access it using Java interop on the value `langohr.queue/declare` returns to you. We do
+To declare a server-named queue you pass queue name as an empty string
+and RabbitMQ will generate a cluster-unique name for you. The name
+will be returned to the client and you can access it using Java
+interop on the value `langohr.queue/declare` returns to you. We do
 this to output queue name.
 
-Server-named queues are commonly used for collecting replies to other messages (the "request-reply" pattern, often referred to as "RPC") or
-when no application needs to know the exact queue name, it just has to be unique.
+Server-named queues are commonly used for collecting replies to other
+messages (the "request-reply" pattern, often referred to as "RPC") or
+when no application needs to know the exact queue name, it just has to
+be unique.
 
 When you run this example, the output will look a bit like this:
 
@@ -521,8 +573,9 @@ When you run this example, the output will look a bit like this:
 [consumer] Consumed 'Hong Kong update' from asia.hk, routing key: asia.southeast.hk.hongkong
 ```
 
-As you can see, some messages were routed to multiple queues and some were not routed to any queues ("deadlettered"). Some queues have
-names we picked and some have names generated by RabbitMQ.
+As you can see, some messages were routed to multiple queues and some
+were not routed to any queues ("dead lettered"). Some queues have names
+we picked and some have names generated by RabbitMQ.
 
 A (very simplistic) diagram to demonstrate topic exchange in action:
 
@@ -530,13 +583,15 @@ A (very simplistic) diagram to demonstrate topic exchange in action:
   <img src="https://github.com/ruby-amqp/amqp/raw/master/docs/diagrams/003_weathr_example_routing.png" style="max-width: 100%" alt="Weathr Routing Diagram"/>
 </a>
 
-The rest of this guide will cover Langohr API design principles. if you are completely new to AMQP and RabbitMQ, feel free
-to skip them for now and go straight to the Wrapping Up section.
+The rest of this guide will cover Langohr API design principles. if
+you are completely new to AMQP and RabbitMQ, feel free to skip them
+for now and go straight to the Wrapping Up section.
 
 
 ## Langohr API Structure
 
-AMQP 0.9.1 operations are grouped into **classes** (no relation to classes in OO languages such as Java or Objective-C):
+AMQP 0.9.1 operations are grouped into **classes** (no relation to
+classes in OO languages such as Java or Objective-C):
 
  * `connection.*`
  * `channel.*`
@@ -565,17 +620,24 @@ The exceptions to this are:
 
 ## Synchronous vs Asynchronous APIs in Langohr
 
-AMQP 0.9.1 and messaging in general are inherently asynchronous: applications publish messages as events happen and react to events
-elsewhere by consuming messages and processing them. Per [AMQP 0.9.1 specification](http://bit.ly/amqp091spec), some AMQP methods (protocol operations, similar to
-`GET` and `POST` in HTTP) are asynchronous (do not block) and some are synchronous (block until a response is received).
+AMQP 0.9.1 and messaging in general are inherently asynchronous:
+applications publish messages as events happen and react to events
+elsewhere by consuming messages and processing them. Per [AMQP 0.9.1
+specification](http://rabbitmq.com/specification.html), some AMQP methods (protocol
+operations, similar to `GET` and `POST` in HTTP) are asynchronous (do
+not block) and some are synchronous (block until a response is
+received).
 
-There are good reasons for this. For some methods, there may be no response (e.g. publishing messages) or it may arrive at an unknown moment
-in the future, possibly hours and days later. Some operations (e.g. declaring a queue) typically finish in a few milliseconds and
-applications have to wait for them to finish before they can do anything else. In the case of the `queue.declare` method, it is
-not possible to start a consumer on a queue that wasn't declared.
+There are good reasons for this. For some methods, there may be no
+response (e.g. publishing messages) or it may arrive at an unknown
+moment in the future, possibly hours and days later. Some operations
+(e.g. declaring a queue) typically finish in a few milliseconds and
+applications have to wait for them to finish before they can do
+anything else. In the case of the `queue.declare` method, it is not
+possible to start a consumer on a queue that wasn't declared.
 
-RabbitMQ Java client and Langohr take a pragmatic approach: some API functions block, others do not. A few examples of blocking
-operations:
+RabbitMQ Java client and Langohr take a pragmatic approach: some API
+functions block, others do not. A few examples of blocking operations:
 
  * `langohr.queue/declare`
  * `langohr.exchange/declare`
@@ -591,16 +653,21 @@ The following functions do not block the calling thread:
  * `langohr.basic/reject`
  * `langohr.basic/nack`
 
-these lists are not complete but should give you an idea about Langohr's philosophy: operations that are performance-sensitive or inherintly
-asynchronous won't block, operations that are synchronous by nature or required to finish for other operations to proceed as blocking.
+these lists are not complete but should give you an idea about
+Langohr's philosophy: operations that are performance-sensitive or
+inherintly asynchronous won't block, operations that are synchronous
+by nature or required to finish for other operations to proceed as
+blocking.
 
-This offers developers a good balance of convenience of blocking function calls and good throughput for publishing.
+This offers developers a good balance of convenience of blocking
+function calls and good throughput for publishing.
 
 
 ## Wrapping Up
 
-This is the end of the tutorial. Congratulations! You have learned quite a bit about both RabbitMQ and Langohr. This is only the tip of the iceberg.
-RabbitMQ has many more features built into the protocol:
+This is the end of the tutorial. Congratulations! You have learned
+quite a bit about both RabbitMQ and Langohr. This is only the tip of
+the iceberg.  RabbitMQ has many more features built into the protocol:
 
  * Reliable delivery of messages
  * Message confirmations (a way to tell broker that a message was or was not processed successfully)
@@ -608,8 +675,10 @@ RabbitMQ has many more features built into the protocol:
  * Load balancing of messages between multiple consumers
  * Message metadata attributes
 
-and so on. Other guides explain these features in depth, as well as use cases for them. To stay up to date with Langohr development, [follow @clojurewerkz on Twitter](http://twitter.com/clojurewerkz)
-and [join our mailing list](http://groups.google.com/group/clojure-rabbitmq).
+and so on. Other guides explain these features in depth, as well as
+use cases for them. To stay up to date with Langohr development,
+[follow @clojurewerkz on Twitter](http://twitter.com/clojurewerkz) and
+[join our mailing list](http://groups.google.com/group/clojure-rabbitmq).
 
 
 ## What to Read Next
