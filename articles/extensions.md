@@ -104,14 +104,19 @@ Starting with Langohr 1.5, the same can be done with the
         q     (lq/declare-server-named ch)]
     (dotimes [n 1000]
       (lb/publish ch default-exchange-name q "msg"))
-    (.waitForConfirms ch)
+    (lcf/wait-for-confirms ch)
     (println "All confirms arrived...")
     (println "[main] Disconnecting...")
     (rmq/close ch)
     (rmq/close conn)))
 ```
 
-In the example above, the `Bunny::Channel#wait_for_confirms` method blocks (waits) until all of the published messages are confirmed by the RabbitMQ broker. **Note** that a message may be nacked by the broker if, for some reason, it cannot take responsibility for the message. In that case, the `wait_for_confirms` method will return `false` and there is also a Ruby `Set` of nacked message IDs (`channel.nacked_set`) that can be inspected and dealt with as required.
+In the example above, the `wait_for_confirms` function blocks (waits)
+until all of the published messages are confirmed by the RabbitMQ
+broker. **Note** that a message may be nacked by the broker if, for
+some reason, it cannot take responsibility for the message. In that
+case, the `wait_for_confirms` function will return `false` if some
+messages were unacknowledged.
 
 ### Learn More
 
@@ -142,7 +147,7 @@ the queue will be removed by RabbitMQ.
   (:require [langohr.queue :as lq]))
 
 # 500 milliseconds
-(lq/declare ch "a.queue" :arguments {"x-expires" 500})
+(lq/declare ch "a.queue" {:arguments {"x-expires" 500}})
 ```
 
 ### Example
@@ -160,7 +165,7 @@ the queue will be removed by RabbitMQ.
   (let [conn  (rmq/connect)
         ch    (lch/open conn)
         qname "clojurewerkz.langohr.examples.queue-ttl"]
-    (lq/declare ch qname :arguments {"x-expires" 500})
+    (lq/declare ch qname {:arguments {"x-expires" 500}})
     (Thread/sleep 600)
     (try
       (lq/declare-passive ch qname)
@@ -201,9 +206,9 @@ event handler will be executed.  To register such a callback, use
 (lcons/subscribe ch q
                     (fn [ch {:keys [delivery-tag]} ^bytes payload]
                       (comment "No op"))
-                    :auto-ack true
-                    :handle-cancel-fn (fn [consumer-tag]
-                                        (println (format "Consumer %s has been cancelled" consumer-tag))))
+                    {:auto-ack true
+                     :handle-cancel-fn (fn [consumer-tag]
+                                         (println (format "Consumer %s has been cancelled" consumer-tag)))})
 ```
 
 ### Example
@@ -228,10 +233,10 @@ event handler will be executed.  To register such a callback, use
     (lcons/subscribe ch q
                      (fn [ch {:keys [delivery-tag]} ^bytes payload]
                        (comment "No op"))
-                     :auto-ack true
-                     :handle-cancel-fn (fn [consumer-tag]
+                     {:auto-ack true
+                      :handle-cancel-fn (fn [consumer-tag]
                                          (println (format "Consumer %s has been cancelled" consumer-tag))
-                                         (.countDown latch)))
+                                         (.countDown latch))})
     (lq/delete ch q)
     (.await latch 200 TimeUnit/MILLISECONDS)
     (println "[main] Disconnecting...")
@@ -261,7 +266,7 @@ to `langohr.queue/declare`:
   (:require [langohr.queue :as lq]))
 
 # 1000 milliseconds
-(lq/declare ch "a.queue" :arguments {"x-message-ttl" 1000})
+(lq/declare ch "a.queue" {:arguments {"x-message-ttl" 1000}})
 ```
 
 When a published message is routed to multiple queues, each of the
@@ -292,7 +297,7 @@ routed to the queue and counts messages in the queue after waiting for
   (let [conn  (rmq/connect)
         ch    (lch/open conn)
         qname "clojurewerkz.langohr.examples.per-queue-message-ttl"]
-    (lq/declare ch qname :arguments {"x-message-ttl" 500} :durable false)
+    (lq/declare ch qname {:arguments {"x-message-ttl" 500} :durable false})
     (lb/publish ch default-exchange-name qname "a message")
     (Thread/sleep 50)
     (println (format "Queue %s has %d messages" qname (lq/message-count ch qname)))
@@ -365,7 +370,7 @@ similar to `langohr.basic/ack` and `langohr.basic/reject`:
   [& args]
   (let [conn  (rmq/connect)
         ch    (lch/open conn)
-        qname (:queue (lq/declare ch "clojurewerkz.langohr.examples.basic-nack.q" :exclusive true))]
+        qname (:queue (lq/declare ch "clojurewerkz.langohr.examples.basic-nack.q" {:exclusive true}))]
     (lcons/subscribe ch qname consumer1-fn)
     (lcons/subscribe ch qname consumer2-fn)
     (dotimes [n 30]
@@ -398,8 +403,8 @@ To specify exchange A as an alternate exchange to exchange B, specify the 'alter
   (:require [langohr.exchange :as lx]))
 
 (lx/fanout ch x2
-              :durable false
-              :arguments {"alternate-exchange" x1})
+              {:durable false
+               :arguments {"alternate-exchange" x1}})
 ```
 
 ### Example
@@ -422,8 +427,8 @@ To specify exchange A as an alternate exchange to exchange B, specify the 'alter
         q    (lq/declare-server-named ch)]
     (lx/fanout ch x1 :durable false)
     (lx/fanout ch x2
-               :durable false
-               :arguments {"alternate-exchange" x1})
+               {:durable false
+                :arguments {"alternate-exchange" x1}})
     (lq/bind ch q x1)
     (lb/publish ch x2 "_" "a message")
     (Thread/sleep 50)
@@ -456,7 +461,7 @@ If neither of those headers is present, this extension has no effect.
 To use sender-selected distribution, set the `"CC"` and `"BCC"` headers like you would any other header:
 
 ``` clojure
-(lb/publish ch ex routing-key "a message" :headers {"CC" ["two" "three"]})
+(lb/publish ch ex routing-key "a message" {:headers {"CC" ["two" "three"]}})
 ```
 
 ### Example
@@ -479,10 +484,11 @@ To use sender-selected distribution, set the `"CC"` and `"BCC"` headers like you
         q1    "clojurewerkz.langohr.examples.sender-selected-distribution1"
         q2    "clojurewerkz.langohr.examples.sender-selected-distribution2"
         q3    "clojurewerkz.langohr.examples.sender-selected-distribution3"]
-    (lq/declare ch q1 :durable false)
-    (lq/declare ch q2 :durable false)
-    (lq/declare ch q3 :durable false)
-    (lb/publish ch default-exchange-name "won't-route-anywhere" "a message" :headers {"CC" [q2 q3]})
+    (lq/declare ch q1 {:durable false})
+    (lq/declare ch q2 {:durable false})
+    (lq/declare ch q3 {:durable false})
+    (lb/publish ch default-exchange-name "won't-route-anywhere" "a message"
+                {:headers {"CC" [q2 q3]}})
     (Thread/sleep 50)
     (println (format "Queue %s has %d messages" q1 (lq/message-count ch q1)))
     (println (format "Queue %s has %d messages" q2 (lq/message-count ch q2)))
@@ -501,20 +507,23 @@ See also rabbitmq.com section on [Sender-Selected Distribution](http://www.rabbi
 
 ## Dead Letter Exchange (DLX)
 
-The x-dead-letter-exchange argument to queue.declare controls the exchange to which messages from that queue are 'dead-lettered'.
-A message is dead-lettered when any of the following events occur:
+The x-dead-letter-exchange argument to queue.declare controls the
+exchange to which messages from that queue are 'dead-lettered'.  A
+message is dead-lettered when any of the following events occur:
 
-The message is rejected (basic.reject or basic.nack) with requeue=false; or the TTL for the message expires.
+The message is rejected (basic.reject or basic.nack) with
+requeue=false; or the TTL for the message expires.
 
 ### How To Use It With Langohr
 
-Dead-letter Exchange is a feature that is used by specifying additional queue arguments:
+Dead-letter Exchange is a feature that is used by specifying
+additional queue arguments:
 
  * `"x-dead-letter-exchange"` specifies the exchange that dead lettered messages should be published to by RabbitMQ
  * `"x-dead-letter-routing-key"` specifies the routing key that should be used (has to be a constant value)
 
 ``` clojure
-(lq/declare ch "a-queue" :arguments {"x-dead-letter-exchange" dlx})
+(lq/declare ch "a-queue" {:arguments {"x-dead-letter-exchange" dlx}})
 ```
 
 ### Example
@@ -538,10 +547,10 @@ Dead-letter Exchange is a feature that is used by specifying additional queue ar
         q1    "clojurewerkz.langohr.examples.dlx.q1"
         q2    "clojurewerkz.langohr.examples.dlx.q2"
         dlx   "clojurewerkz.langohr.examples.dlx"]
-    (lq/declare ch q1 :durable false :arguments {"x-dead-letter-exchange" dlx
-                                                 "x-message-ttl" 300})
-    (lq/declare ch q2 :durable false)
-    (lx/fanout ch dlx :durable false)
+    (lq/declare ch q1 {:durable false :arguments {"x-dead-letter-exchange" dlx
+                                                 "x-message-ttl" 300}})
+    (lq/declare ch q2 {:durable false})
+    (lx/fanout ch dlx {:durable false})
     (lq/bind ch q2 dlx)
     (lb/publish ch default-exchange-name q1 "a message")
     ;; expired messages are dead lettered
@@ -560,10 +569,8 @@ See also rabbitmq.com section on [Dead Letter Exchange](http://www.rabbitmq.com/
 
 ## Exchange-To-Exchange Bindings
 
-RabbitMQ supports [exchange-to-exchange
-bindings](http://www.rabbitmq.com/e2e.html) to allow even richer
-routing topologies as well as a backbone for some other features
-(e.g. tracing).
+RabbitMQ supports [exchange-to-exchange bindings](http://www.rabbitmq.com/e2e.html) to allow even richer
+routing topologies as well as a backbone for some other features (e.g. tracing).
 
 ### How To Use It With Langohr
 
@@ -576,7 +583,7 @@ the same as `langohr.queue/bind` but binds two exchanges:
 
 ;; x1 is the source, x2 is the destination,
 ;; the same argument order as in langohr.queue/bind
-(lx/bind ch x2 x1 :routing-key "unsorted")
+(lx/bind ch x2 x1 {:routing-key "unsorted"})
 ```
 
 ### Example
@@ -597,11 +604,11 @@ the same as `langohr.queue/bind` but binds two exchanges:
         x1    "clojurewerkz.langohr.examples.dlx.x1"
         x2    "clojurewerkz.langohr.examples.dlx.x2"
         qname "clojurewerkz.langohr.examples.dlx.q"]
-    (lx/direct ch x1 :durable false)
-    (lx/fanout ch x2 :durable false)
-    (lq/declare ch qname :exclusive true)
+    (lx/direct ch x1 {:durable false})
+    (lx/fanout ch x2 {:durable false})
+    (lq/declare ch qname {:exclusive true})
     (lq/bind ch qname x2)
-    (lx/bind ch x2 x1 :routing-key "unsorted")
+    (lx/bind ch x2 x1 {:routing-key "unsorted"})
     (lb/publish ch x1 "unsorted" "a message")
     (Thread/sleep 50)
     (println (format "Queue %s has %d message(s)" qname (lq/message-count ch qname)))
@@ -619,7 +626,9 @@ See also rabbitmq.com section on [Exchange-to-Exchange Bindings](http://www.rabb
 
 ## Wrapping Up
 
-TBD
+RabbitMQ offers multiple extensions to its core protocol and they are all can be
+used with Langohr.
+
 
 ## What to Read Next
 
