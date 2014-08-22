@@ -5,8 +5,10 @@ layout: article
 
 ## About this guide
 
-This guide covers the use of exchanges according to the AMQP 0.9.1 specification, including broader topics
-related to message publishing, common usage scenarios and how to accomplish typical operations using Langohr.
+This guide covers the use of exchanges according to the AMQP 0.9.1
+specification, including broader topics related to message publishing,
+common usage scenarios and how to accomplish typical operations using
+Langohr.
 
 This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a>
 (including images and stylesheets). The source is available [on Github](https://github.com/clojurewerkz/langohr.docs).
@@ -21,17 +23,23 @@ This guide covers Langohr 3.0.x.
 
 ### What are AMQP exchanges?
 
-An *exchange* accepts messages from a producer application and routes them to message queues. They can be thought of as the
-"mailboxes" of the AMQP world. Unlike some other messaging middleware products and protocols, in AMQP, messages are *not* published directly to queues.
-Messages are published to exchanges that route them to queue(s) using pre-arranged criteria called *bindings*.
+An *exchange* accepts messages from a producer application and routes
+them to message queues. They can be thought of as the "mailboxes" of
+the AMQP world. Unlike some other messaging middleware products and
+protocols, in AMQP, messages are *not* published directly to queues.
+Messages are published to exchanges that route them to queue(s) using
+pre-arranged criteria called *bindings*.
 
-There are multiple exchange types in the AMQP 0.9.1 specification, each with its own routing semantics. Custom exchange types can be created to deal with
-sophisticated routing scenarios (e.g. routing based on geolocation data or edge cases) or just for convenience.
+There are multiple exchange types in the AMQP 0.9.1 specification,
+each with its own routing semantics. Custom exchange types can be
+created to deal with sophisticated routing scenarios (e.g. routing
+based on geolocation data or edge cases) or just for convenience.
 
 ### Concept of Bindings
 
-A *binding* is an association between a queue and an exchange. A queue must be bound to at least one exchange in order to receive
-messages from publishers. Learn more about bindings in the [Bindings guide](/articles/bindings.html).
+A *binding* is an association between a queue and an exchange. A queue
+must be bound to at least one exchange in order to receive messages
+from publishers. Learn more about bindings in the [Bindings guide](/articles/bindings.html).
 
 ### Exchange attributes
 
@@ -53,27 +61,38 @@ There are four built-in exchange types in AMQP v0.9.1:
  * Topic
  * Headers
 
-As stated previously, each exchange type has its own routing semantics and new exchange types can be added by extending brokers with plugins. Custom exchange types
-begin with "x-", much like custom HTTP headers, e.g. [x-consistent-hash exchange](https://github.com/rabbitmq/rabbitmq-consistent-hash-exchange) or [x-random exchange](https://github.com/jbrisbin/random-exchange).
+As stated previously, each exchange type has its own routing semantics
+and new exchange types can be added by extending brokers with
+plugins. Custom exchange types begin with "x-", much like custom HTTP
+headers, e.g. [x-consistent-hash exchange](https://github.com/rabbitmq/rabbitmq-consistent-hash-exchange) or [x-random exchange](https://github.com/jbrisbin/random-exchange).
 
 ## Message attributes
 
-Before we start looking at various exchange types and their routing semantics, we need to introduce message attributes. Every AMQP message has a number
-of *attributes*. Some attributes are important and used very often, others are rarely used. AMQP message attributes are metadata
-and are similar in purpose to HTTP request and response headers.
+Before we start looking at various exchange types and their routing
+semantics, we need to introduce message attributes. Every AMQP message
+has a number of *attributes*. Some attributes are important and used
+very often, others are rarely used. AMQP message attributes are
+metadata and are similar in purpose to HTTP request and response
+headers.
 
-Every AMQP 0.9.1 message has an attribute called *routing key*. The routing key is an "address" that the exchange may use to decide
-how to route the message . This is similar to, but more generic than, a URL in HTTP. Most exchange types use the routing key to implement routing logic,
-but some ignore it and use other criteria (e.g. message content).
+Every AMQP 0.9.1 message has an attribute called *routing key*. The
+routing key is an "address" that the exchange may use to decide how to
+route the message . This is similar to, but more generic than, a URL
+in HTTP. Most exchange types use the routing key to implement routing
+logic, but some ignore it and use other criteria (e.g. message
+content).
 
 
 ## Fanout exchanges
 
 ### How fanout exchanges route messages
 
-A fanout exchange routes messages to all of the queues that are bound to it and the routing key is ignored. If N queues are bound to a fanout exchange,
-when a new message is published to that exchange a *copy of the message* is delivered to all N queues. Fanout exchanges are ideal for the
-[broadcast routing](http://en.wikipedia.org/wiki/Broadcasting_%28computing%29) of messages.
+A fanout exchange routes messages to all of the queues that are bound
+to it and the routing key is ignored. If N queues are bound to a
+fanout exchange, when a new message is published to that exchange a
+*copy of the message* is delivered to all N queues. Fanout exchanges
+are ideal for the [broadcast routing](http://en.wikipedia.org/wiki/Broadcasting_%28computing%29) of
+messages.
 
 Graphically this can be represented as:
 
@@ -126,7 +145,7 @@ publish a message to the exchange:
                                    queue-name
                                    (String. payload "UTF-8"))))
         thread  (Thread. (fn []
-                           (lc/subscribe ch queue-name handler :auto-ack true)))]
+                           (lc/subscribe ch queue-name handler {:auto-ack true})))]
     (.start thread)))
 
 (defn -main
@@ -136,10 +155,10 @@ publish a message to the exchange:
         ename "langohr.examples.fanout"]
     (le/declare ch ename "fanout")
     (dotimes [i 10]
-      (let [q (.getQueue (lq/declare ch "" :exclusive false :auto-delete true))]
+      (let [q (.getQueue (lq/declare ch "" {:exclusive false :auto-delete true}))]
         (lq/bind    ch q ename)
         (start-consumer ch q)))
-    (lb/publish ch ename "" "Ping" :content-type "text/plain")
+    (lb/publish ch ename "" "Ping" {:content-type "text/plain"})
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
@@ -167,7 +186,8 @@ Each of the queues bound to the exchange receives a *copy* of the message.
 
 ### Fanout use cases
 
-Because a fanout exchange delivers a copy of a message to every queue bound to it, its use cases are quite similar:
+Because a fanout exchange delivers a copy of a message to every queue
+bound to it, its use cases are quite similar:
 
  * Massively multiplayer online (MMO) games can use it for leaderboard updates or other global events
  * Sport news sites can use fanout exchanges for distributing score updates to mobile clients in near real-time
@@ -176,15 +196,19 @@ Because a fanout exchange delivers a copy of a message to every queue bound to i
 
 ### Pre-declared fanout exchanges
 
-AMQP 0.9.1 brokers must implement a fanout exchange type and pre-declare one instance with the name of `"amq.fanout"`.
+AMQP 0.9.1 brokers must implement a fanout exchange type and
+pre-declare one instance with the name of `"amq.fanout"`.
 
-Applications can rely on that exchange always being available to them. Each vhost has a separate instance of that exchange, it is *not shared across vhosts* for obvious reasons.
+Applications can rely on that exchange always being available to
+them. Each vhost has a separate instance of that exchange, it is *not
+shared across vhosts* for obvious reasons.
 
 ## Direct exchanges
 
 ### How direct exchanges route messages
 
-A direct exchange delivers messages to queues based on a *message routing key*, an attribute that every AMQP v0.9.1 message contains.
+A direct exchange delivers messages to queues based on a *message
+routing key*, an attribute that every AMQP v0.9.1 message contains.
 
 Here is how it works:
 
@@ -221,7 +245,8 @@ Here are two examples to demonstrate:
 
 ### Direct routing example
 
-Since direct exchanges use the *message routing key* for routing, message producers need to specify it:
+Since direct exchanges use the *message routing key* for routing,
+message producers need to specify it:
 
 ``` clojure
 (ns clojurewerkz.langohr.examples.direct-routing
@@ -242,7 +267,7 @@ Since direct exchanges use the *message routing key* for routing, message produc
                                    queue-name
                                    (String. payload "UTF-8"))))
         thread  (Thread. (fn []
-                           (lc/subscribe ch queue-name handler :auto-ack true)))]
+                           (lc/subscribe ch queue-name handler {:auto-ack true})))]
     (.start thread)))
 
 (defn -main
@@ -251,46 +276,59 @@ Since direct exchanges use the *message routing key* for routing, message produc
         ch    (lch/open conn)
         ename "langohr.examples.direct"]
     (le/declare ch ename "direct")
-    (let [q (.getQueue (lq/declare ch "" :exclusive false :auto-delete true))]
+    (let [q (:queue (lq/declare ch "" {:exclusive false :auto-delete true}))]
       (lq/bind ch q ename :routing-key "pings")
       (start-consumer ch q))
-    (lb/publish ch ename "pings" "Ping" :content-type "text/plain")
+    (lb/publish ch ename "pings" "Ping" {:content-type "text/plain"})
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
     (rmq/close conn)))
 ```
 
-The routing key will then be compared for equality with routing keys on bindings, and consumers that subscribed with
-the same routing key each get a copy of the message.
+The routing key will then be compared for equality with routing keys
+on bindings, and consumers that subscribed with the same routing key
+each get a copy of the message.
 
 
 ### Direct Exchanges and Load Balancing of Messages
 
-Direct exchanges are often used to distribute tasks between multiple workers (instances of the same application) in a round robin manner.
-When doing so, it is important to understand that, in AMQP 0.9.1, *messages are load balanced between consumers and not between queues*.
+Direct exchanges are often used to distribute tasks between multiple
+workers (instances of the same application) in a round robin manner.
+When doing so, it is important to understand that, in AMQP 0.9.1,
+*messages are load balanced between consumers and not between queues*.
 
 The [Queues and Consumers](/articles/queues.html) guide provide more information on this subject.
 
 ### Pre-declared direct exchanges
 
-AMQP 0.9.1 brokers must implement a direct exchange type and pre-declare two instances:
+AMQP 0.9.1 brokers must implement a direct exchange type and
+pre-declare two instances:
 
  * `amq.direct`
- * *""* exchange known as *default exchange* (unnamed, referred to as an empty string by many clients including amqp Ruby gem)
+ * *""* exchange known as *default exchange* (unnamed, referred to as an empty string)
 
-Applications can rely on those exchanges always being available to them. Each vhost has separate instances of those
-exchanges, they are *not shared across vhosts* for obvious reasons.
+Applications can rely on those exchanges always being available to
+them. Each vhost has separate instances of those exchanges, they are
+*not shared across vhosts* for obvious reasons.
 
 
 ### Default exchange
 
-The default exchange is a direct exchange with no name (the Langohr refers to it using an empty string) pre-declared by the broker. It has one special
-property that makes it very useful for simple applications, namely that *every queue is automatically bound to it with a routing key which is the same as the queue name*.
+The default exchange is a direct exchange with no name (the Langohr
+refers to it using an empty string) pre-declared by the broker. It has
+one special property that makes it very useful for simple
+applications, namely that *every queue is automatically bound to it
+with a routing key which is the same as the queue name*.
 
-For example, when you declare a queue with the name of "search.indexing.online", the AMQP broker will bind it to the default exchange using "search.indexing.online"
-as the routing key. Therefore a message published to the default exchange with routing key = "search.indexing.online" will be routed to the queue "search.indexing.online".
-In other words, the default exchange makes it *seem like it is possible to deliver messages directly to queues*, even though that is not technically what is happening.
+For example, when you declare a queue with the name of
+"search.indexing.online", the AMQP broker will bind it to the default
+exchange using "search.indexing.online" as the routing key. Therefore
+a message published to the default exchange with routing key =
+"search.indexing.online" will be routed to the queue
+"search.indexing.online".  In other words, the default exchange makes
+it *seem like it is possible to deliver messages directly to queues*,
+even though that is not technically what is happening.
 
 The default exchange is used by the "Hello, World" example:
 
@@ -315,7 +353,7 @@ The default exchange is used by the "Hello, World" example:
   "Starts a consumer in a separate thread"
   [conn ch queue-name]
   (let [thread (Thread. (fn []
-                          (lc/subscribe ch queue-name message-handler :auto-ack true)))]
+                          (lc/subscribe ch queue-name message-handler {:auto-ack true})))]
     (.start thread)))
 
 (defn -main
@@ -324,9 +362,9 @@ The default exchange is used by the "Hello, World" example:
         ch    (lch/open conn)
         qname "langohr.examples.hello-world"]
     (println (format "[main] Connected. Channel id: %d" (.getChannelNumber ch)))
-    (lq/declare ch qname :exclusive false :auto-delete true)
+    (lq/declare ch qname {:exclusive false :auto-delete true})
     (start-consumer conn ch qname)
-    (lb/publish ch default-exchange-name qname "Hello!" :content-type "text/plain" :type "greetings.hi")
+    (lb/publish ch default-exchange-name qname "Hello!" {:content-type "text/plain" :type "greetings.hi"})
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
@@ -348,8 +386,10 @@ Direct exchanges can be used in a wide variety of cases:
 
 ### How Topic Exchanges Route Messages
 
-Topic exchanges route messages to one or many queues based on matching between a message routing key and the pattern that was used to bind a queue to an exchange.
-The topic exchange type is often used to implement various [publish/subscribe pattern](http://en.wikipedia.org/wiki/Publish/subscribe) variations.
+Topic exchanges route messages to one or many queues based on matching
+between a message routing key and the pattern that was used to bind a
+queue to an exchange.  The topic exchange type is often used to
+implement various [publish/subscribe pattern](http://en.wikipedia.org/wiki/Publish/subscribe) variations.
 
 Topic exchanges are commonly used for the [multicast routing](http://en.wikipedia.org/wiki/Multicast) of messages.
 
@@ -362,20 +402,28 @@ more efficient for this use case.
 
 ### Topic Exchange Routing Example
 
-Two classic examples of topic-based routing are stock price updates and location-specific data (for instance, weather broadcasts). Consumers indicate which
-topics they are interested in (think of it like subscribing to a feed for an individual tag of your favourite blog as opposed to the full feed). The routing is enabled
-by specifying a *routing pattern* to the `langohr.queue/bind` function, for example:
+Two classic examples of topic-based routing are stock price updates
+and location-specific data (for instance, weather
+broadcasts). Consumers indicate which topics they are interested in
+(think of it like subscribing to a feed for an individual tag of your
+favourite blog as opposed to the full feed). The routing is enabled by
+specifying a *routing pattern* to the `langohr.queue/bind` function,
+for example:
 
 ``` clojure
 (require '[langohr.exchange :as le])
 
-(lq/bind ch "crawler.d98fd46e880ab4541d9570f671a9272811c5c438" "requests.crawling" :routing-key "#.org")
+(lq/bind ch "crawler.d98fd46e880ab4541d9570f671a9272811c5c438" "requests.crawling" {:routing-key "#.org"})
 ```
 
-In the example above we bind a queue with the name of "americas.south" to the topic exchange declared earlier using the `langohr.queue/bind` function. This means that
-only messages with a routing key matching "americas.south.#" will be routed to the "americas.south" queue.
+In the example above we bind a queue with the name of "americas.south"
+to the topic exchange declared earlier using the `langohr.queue/bind`
+function. This means that only messages with a routing key matching
+"americas.south.#" will be routed to the "americas.south" queue.
 
-A routing pattern consists of several words separated by dots, in a similar way to URI path segments being joined by slash. A few of examples:
+A routing pattern consists of several words separated by dots, in a
+similar way to URI path segments being joined by slash. A few of
+examples:
 
  * asia.southeast.thailand.bangkok
  * sports.basketball
@@ -423,17 +471,17 @@ Full example:
 (defn start-consumer
   "Starts a consumer bound to the given topic exchange in a separate thread"
   [ch topic-name queue-name]
-  (let [queue-name' (.getQueue (lq/declare ch queue-name :exclusive false :auto-delete true))
+  (let [queue-name' (:queue (lq/declare ch queue-name {:exclusive false :auto-delete true}))
         handler     (fn [ch {:keys [routing-key] :as meta} ^bytes payload]
                       (println (format "[consumer] Consumed '%s' from %s, routing key: %s" (String. payload "UTF-8") queue-name' routing-key)))]
-    (lq/bind    ch queue-name' weather-exchange :routing-key topic-name)
+    (lq/bind    ch queue-name' weather-exchange {:routing-key topic-name})
     (.start (Thread. (fn []
-                       (lc/subscribe ch queue-name' handler :auto-ack true))))))
+                       (lc/subscribe ch queue-name' handler {:auto-ack true}))))))
 
 (defn publish-update
   "Publishes a weather update"
   [ch payload routing-key]
-  (lb/publish ch weather-exchange routing-key payload :content-type "text/plain" :type "weather.update"))
+  (lb/publish ch weather-exchange routing-key payload {:content-type "text/plain" :type "weather.update"}))
 
 (defn -main
   [& args]
@@ -445,7 +493,7 @@ Full example:
                    "us.tx.austin"   "#.tx.austin"
                    "it.rome"        "europe.italy.rome"
                    "asia.hk"        "asia.southeast.hk.#"}]
-    (le/declare ch weather-exchange "topic" :durable false :auto-delete true)
+    (le/declare ch weather-exchange "topic" {:durable false :auto-delete true})
     (doseq [[k v] locations]
       (start-consumer ch v k))
     (publish-update ch "San Diego update" "americas.north.us.ca.sandiego")
@@ -478,34 +526,43 @@ they want to receive, the use of topic exchanges should be considered. To name a
 
 ## Declaring/Instantiating Exchanges
 
-With Langohr, exchanges can be declared in two ways: by using the `langohr.exchange/declare` or by using a number of convenience function:
+With Langohr, exchanges can be declared in two ways: by using the
+`langohr.exchange/declare` or by using a number of convenience
+function:
 
   * `langohr.exchange/direct`
   * `langohr.exchange/topic`
   * `langohr.exchange/fanout`
   * `langohr.exchange/headers`
 
-The previous sections on specific exchange types (direct, fanout, headers, etc.) provide plenty of examples of how these methods can be used.
+The previous sections on specific exchange types (direct, fanout,
+headers, etc.) provide plenty of examples of how these methods can be
+used.
 
 ## Publishing messages
 
 To publish a message to an AMQP exchange, use `langohr.basic/publish`:
 
 ``` clojure
-(lb/publish ch default-exchange-name qname "Hello!" :content-type "text/plain" :type "greetings.hi")
+(lb/publish ch default-exchange-name qname "Hello!" {:content-type "text/plain" :type "greetings.hi"})
 ```
 
+The function accepts a channel, an exchange, a routing key (can be an
+empty string but *not nil*), a body and a map of message and
+delivery metadata options.
 
-The function accepts a channel, an exchange, a routing key (can be an empty string but *not nil*), a body and a number of
-message and delivery metadata options.
-
-The body can be either a byte array or a string. The message payload is completely opaque to the library and is not modified in any way.
+The body can be either a byte array or a string. The message payload
+is completely opaque to the library and is not modified in any way.
 
 ### Data serialization
 
-You are encouraged to take care of data serialization before publishing (i.e. by using JSON, Thrift, Protocol Buffers or some other serialization library).
-Note that because AMQP is a binary protocol, text formats like JSON largely lose their advantage of being easy to inspect as data travels across the network,
-so if bandwidth efficiency is important, consider using [MessagePack](http://msgpack.org/) or [Protocol Buffers](http://code.google.com/p/protobuf/).
+You are encouraged to take care of data serialization before
+publishing (i.e. by using JSON, Thrift, Protocol Buffers or some other
+serialization library).  Note that because AMQP is a binary protocol,
+text formats like JSON largely lose their advantage of being easy to
+inspect as data travels across the network, so if bandwidth efficiency
+is important, consider using [MessagePack](http://msgpack.org/) or
+[Protocol Buffers](http://code.google.com/p/protobuf/).
 
 A few popular options for data serialization are:
 
@@ -517,8 +574,11 @@ A few popular options for data serialization are:
 
 ### Message metadata
 
-AMQP messages have various metadata attributes that can be set when a message is published. Some of the attributes are well-known and mentioned in the AMQP 0.9.1 specification,
-others are specific to a particular application. Well-known attributes are listed here as options that `langohr.basic/publish` takes:
+AMQP messages have various metadata attributes that can be set when a
+message is published. Some of the attributes are well-known and
+mentioned in the AMQP 0.9.1 specification, others are specific to a
+particular application. Well-known attributes are listed here as
+options that `langohr.basic/publish` takes:
 
  * `:persistent`
  * `:mandatory`
@@ -534,18 +594,19 @@ others are specific to a particular application. Well-known attributes are liste
  * `:timestamp`
  * `:expiration`
 
-All other attributes can be added to a *headers table* (in Clojure, a map) that `langohr.basic/publish` accepts as the `:headers` option.
+All other attributes can be added to a *headers table* (in Clojure, a
+map) that `langohr.basic/publish` accepts as the `:headers` option.
 
 An example:
 
 ``` clojure
 (lb/publish ch default-exchange-name qname "Hello!"
-            :content-type "text/plain"
-            :type "greetings.reply"
-            :mandatory true
-            :reply-to "greetings.hi"
-            :headers {"server" "app5.myapp.megacorp.com"
-                      "cached" false})
+            {:content-type "text/plain"
+             :type "greetings.reply"
+             :mandatory true
+             :reply-to "greetings.hi"
+             :headers {"server" "app5.myapp.megacorp.com"
+                       "cached" false}})
 ```
 
 <dl>
@@ -609,21 +670,29 @@ An example:
   <dd>A map of any additional attributes that the application needs. Nested hashes are supported. Keys must be strings.</dd>
 </dl>
 
-It is recommended that application authors use well-known message attributes when applicable instead of relying on custom headers or placing information in the message body.
-For example, if your application messages have priority, publishing timestamp, type and content type, you should use the respective AMQP message attributes
+It is recommended that application authors use well-known message
+attributes when applicable instead of relying on custom headers or
+placing information in the message body.  For example, if your
+application messages have priority, publishing timestamp, type and
+content type, you should use the respective AMQP message attributes
 instead of reinventing the wheel.
 
 
 ### Validated User ID
 
-In some scenarios it is useful for consumers to be able to know the identity of the user who published a message. RabbitMQ implements a feature known as [validated User ID](http://www.rabbitmq.com/extensions.html#validated-user-id).
-If this property is set by a publisher, its value must be the same as the name of the user used to open the connection. If the user-id property is not set, the publisher's
-identity is not validated and remains private.
+In some scenarios it is useful for consumers to be able to know the
+identity of the user who published a message. RabbitMQ implements a
+feature known as [validated User ID](http://www.rabbitmq.com/extensions.html#validated-user-id).  If
+this property is set by a publisher, its value must be the same as the
+name of the user used to open the connection. If the user-id property
+is not set, the publisher's identity is not validated and remains
+private.
 
 
 ### Publishing Callbacks and Reliable Delivery in Distributed Environments
 
-A commonly asked question about RabbitMQ clients is "how to execute a piece of code after a message is received".
+A commonly asked question about RabbitMQ clients is "how to execute a
+piece of code after a message is received".
 
 Message publishing with Langohr happens in several steps:
 
@@ -641,22 +710,30 @@ The only way to reliably know whether data was received by the broker or a peer 
 approach is proven to work at  enormous scale of the modern Internet. AMQP (the protocol) fully embraces this fact and Langohr follows.
 </div>
 
-In cases when you cannot afford to lose a single message, AMQP 0.9.1 applications can use one (or a combination of) the following protocol features:
+In cases when you cannot afford to lose a single message, AMQP 0.9.1
+applications can use one (or a combination of) the following protocol
+features:
 
  * Publisher confirms (a RabbitMQ-specific extension to AMQP 0.9.1)
  * Publishing messages as mandatory
  * Transactions (these introduce noticeable overhead and have a relatively narrow set of use cases)
 
-A more detailed overview of the pros and cons of each option can be found in a [blog post that introduces Publisher Confirms extension](http://bit.ly/rabbitmq-publisher-confirms)
-by the RabbitMQ team. The next sections of this guide will describe how the features above can be used with Langohr.
+A more detailed overview of the pros and cons of each option can be
+found in a [blog post that introduces Publisher Confirms extension](http://bit.ly/rabbitmq-publisher-confirms) by the RabbitMQ
+team. The next sections of this guide will describe how the features
+above can be used with Langohr.
 
 
 ### Publishing messages as mandatory
 
-When publishing messages, it is possible to use the `:mandatory` option to publish a message as "mandatory". When a mandatory message cannot be *routed*
-to any queue (for example, there are no bindings or none of the bindings match), the message is returned to the producer.
+When publishing messages, it is possible to use the `:mandatory`
+option to publish a message as "mandatory". When a mandatory message
+cannot be *routed* to any queue (for example, there are no bindings or
+none of the bindings match), the message is returned to the producer.
 
-The following code example demonstrates a message that is published as mandatory but cannot be routed (no bindings) and thus is returned back to the producer:
+The following code example demonstrates a message that is published as
+mandatory but cannot be routed (no bindings) and thus is returned back
+to the producer:
 
 ``` clojure
 (ns clojurewerkz.langohr.examples.mandatory-publishing
@@ -678,7 +755,7 @@ The following code example demonstrates a message that is published as mandatory
         rl    (lb/return-listener (fn [reply-code reply-text exchange routing-key properties body]
                                     (println "Message returned. Reply text: " reply-text)))]
     (.addReturnListener ch rl)
-    (lb/publish ch default-exchange-name qname "Hello!" :content-type "text/plain" :mandatory true)
+    (lb/publish ch default-exchange-name qname "Hello!" {:content-type "text/plain" :mandatory true})
     (Thread/sleep 1000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
@@ -688,14 +765,17 @@ The following code example demonstrates a message that is published as mandatory
 
 ### Returned messages
 
-When a message is returned, the application that produced it can handle that message in different ways:
+When a message is returned, the application that produced it can
+handle that message in different ways:
 
  * Store it for later redelivery in a persistent store
  * Publish it to a different destination
  * Log the event and discard the message
 
-Returned messages contain information about the exchange they were published to. Langohr associates
-returned message callbacks with consumers. To handle returned messages, use `langohr.basic/add-return-listener`:
+Returned messages contain information about the exchange they were
+published to. Langohr associates returned message callbacks with
+consumers. To handle returned messages, use
+`langohr.basic/add-return-listener`:
 
 ``` clojure
 (ns clojurewerkz.langohr.examples.mandatory-publishing
@@ -717,29 +797,36 @@ returned message callbacks with consumers. To handle returned messages, use `lan
         rl    (lb/return-listener (fn [reply-code reply-text exchange routing-key properties body]
                                     (println "Message returned. Reply text: " reply-text)))]
     (lb/add-return-listener ch rl)
-    (lb/publish ch default-exchange-name qname "Hello!" :content-type "text/plain" :mandatory true)
+    (lb/publish ch default-exchange-name qname "Hello!" {:content-type "text/plain" :mandatory true})
     (Thread/sleep 1000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
     (rmq/close conn)))
 ```
 
-A returned message handler has access to AMQP method (`basic.return`) information, message metadata and payload (as a byte array).
-The metadata and message body are returned without modifications so that the application can store the message for later redelivery.
+A returned message handler has access to the AMQP method (`basic.return`)
+information, message metadata and payload (as a byte array).  The
+metadata and message body are returned without modifications so that
+the application can store the message for later redelivery.
 
 
 ### Publishing Persistent Messages
 
-Messages potentially spend some time in the queues to which they were routed before they are consumed. During this period of time, the broker may crash or experience a restart.
-To survive it, messages must be persisted to disk. This has a negative effect on performance, especially with network attached storage like NAS devices and Amazon EBS.
-AMQP 0.9.1 lets applications trade off performance for durability, or vice versa, on a message-by-message basis.
+Messages potentially spend some time in the queues to which they were
+routed before they are consumed. During this period of time, the
+broker may crash or experience a restart.  To survive it, messages
+must be persisted to disk. This has a negative effect on performance,
+especially with network attached storage like NAS devices and Amazon
+EBS.  AMQP 0.9.1 lets applications trade off performance for
+durability, or vice versa, on a message-by-message basis.
 
-To publish a persistent message, use the `:persistent` option that `langohr.basic/publish` accepts:
+To publish a persistent message, use the `:persistent` option that
+`langohr.basic/publish` accepts:
 
 ``` clojure
 (require '[langohr.basic :as lb])
 
-(lb/publish ch "requests.crawling" "datsite.net" payload :content-type "application/json" :type "commands.sitemap.refresh" :persistent true)
+(lb/publish ch "requests.crawling" "datsite.net" payload {:content-type "application/json" :type "commands.sitemap.refresh" :persistent true})
 ```
 
 <div class="alert alert-error">
@@ -754,14 +841,16 @@ Note that in order to survive a broker crash, both the message and the queue tha
 When using Langohr in multi-threaded environments, the rule of thumb is: avoid sharing channels across threads.
 </div>
 
-In other words, publishers in your application that publish from separate threads should use their own channels. The
-same is a good idea for consumers.
+In other words, publishers in your application that publish from
+separate threads should use their own channels. The same is a good
+idea for consumers.
 
 
 ## Headers exchanges
 
-Now that message attributes and publishing have been introduced, it is time to take a look at one more core exchange type in AMQP 0.9.1. It is called the *headers
-exchange type* and is quite powerful.
+Now that message attributes and publishing have been introduced, it is
+time to take a look at one more core exchange type in AMQP 0.9.1. It
+is called the *headers exchange type* and is quite powerful.
 
 ### How headers exchanges route messages
 
@@ -773,18 +862,23 @@ It strives to provide a way for a community to contribute machines to run tests 
 One key problem such systems face is build distribution. It would be nice if a messaging broker could figure out which machine has which OS, architecture or
 combination of the two and route build request messages accordingly.
 
-A headers exchange is designed to help in situations like this by routing on multiple attributes that are more easily expressed as message metadata
-attributes (headers) rather than a routing key string.
+A headers exchange is designed to help in situations like this by
+routing on multiple attributes that are more easily expressed as
+message metadata attributes (headers) rather than a routing key
+string.
 
 #### Routing on Multiple Message Attributes
 
-Headers exchanges route messages based on message header matching. Headers exchanges ignore the routing key attribute. Instead, the attributes used for
-routing are taken from the "headers" attribute. When a queue is bound to a headers exchange, the `:arguments` attribute is used to define matching rules:
+Headers exchanges route messages based on message header
+matching. Headers exchanges ignore the routing key attribute. Instead,
+the attributes used for routing are taken from the "headers"
+attribute. When a queue is bound to a headers exchange, the
+`:arguments` attribute is used to define matching rules:
 
 ``` clojure
 (require '[langohr.queue :as lq])
 
-(lq/bind ch "hosts.ip-172-37-11-56" "requests" :arguments {"os" "Linux"})
+(lq/bind ch "hosts.ip-172-37-11-56" "requests" {:arguments {"os" "Linux"}})
 ```
 
 When matching on one header, a message is considered matching if the value of the header equals the value specified upon binding. An example
@@ -809,7 +903,7 @@ that demonstrates headers routing:
                                    queue-name
                                    (String. payload "UTF-8"))))
         thread  (Thread. (fn []
-                           (lc/subscribe ch queue-name handler :auto-ack true)))]
+                           (lc/subscribe ch queue-name handler {:auto-ack true})))]
     (.start thread)))
 
 (defn -main
@@ -818,15 +912,15 @@ that demonstrates headers routing:
         ch    (lch/open conn)
         ename "langohr.examples.headers"]
     (le/declare ch ename "headers")
-    (let [qname (.getQueue (lq/declare ch "" :auto-delete true :exclusive false))]
-      (lq/bind ch qname ename :arguments {"os" "linux" "cores" 8 "x-match" "all"})
+    (let [qname (.getQueue (lq/declare ch "" {:auto-delete true :exclusive false}))]
+      (lq/bind ch qname ename {:arguments {"os" "linux" "cores" 8 "x-match" "all"}})
       (start-consumer ch qname))
-    (let [qname (.getQueue (lq/declare ch "" :auto-delete true :exclusive false))]
-      (lq/bind ch qname ename :arguments {"os" "osx" "cores" 4 "x-match" "any"})
+    (let [qname (.getQueue (lq/declare ch "" {:auto-delete true :exclusive false}))]
+      (lq/bind ch qname ename {:arguments {"os" "osx" "cores" 4 "x-match" "any"}})
       (start-consumer ch qname))
-    (lb/publish ch ename "" "8 cores/Linux" :content-type "text/plain" :headers {"os" "linux" "cores" 8})
-    (lb/publish ch ename "" "8 cores/OS X"  :content-type "text/plain" :headers {"os" "osx"   "cores" 8})
-    (lb/publish ch ename "" "4 cores/Linux" :content-type "text/plain" :headers {"os" "linux" "cores" 4})
+    (lb/publish ch ename "" "8 cores/Linux" {:content-type "text/plain" :headers {"os" "linux" "cores" 8}})
+    (lb/publish ch ename "" "8 cores/OS X"  {:content-type "text/plain" :headers {"os" "osx"   "cores" 8}})
+    (lb/publish ch ename "" "4 cores/Linux" {:content-type "text/plain" :headers {"os" "linux" "cores" 4}})
     (Thread/sleep 2000)
     (println "[main] Disconnecting...")
     (rmq/close ch)
@@ -859,7 +953,8 @@ a "cores" header value equal to 8 will be considered matching.
 
 ### Declaring a Headers Exchange
 
-To declare a headers exchange, use `langohr.exchange/declare` and specify the exchange type as `"headers"`:
+To declare a headers exchange, use `langohr.exchange/declare` and
+specify the exchange type as `"headers"`:
 
 ``` clojure
 (require '[langohr.exchange :as le])
@@ -869,14 +964,20 @@ To declare a headers exchange, use `langohr.exchange/declare` and specify the ex
 
 ### Headers Exchange Routing
 
-When there is just one queue bound to a headers exchange, messages are routed to it if any or all of the message headers match those specified upon binding.
-Whether it is "any header" or "all of them" depends on the `"x-match"` header value. In the case of multiple queues, a headers exchange will deliver
-a copy of a message to each queue, just like direct exchanges do. Distribution rules between consumers on a particular queue are the same as for a direct exchange.
+When there is just one queue bound to a headers exchange, messages are
+routed to it if any or all of the message headers match those
+specified upon binding.  Whether it is "any header" or "all of them"
+depends on the `"x-match"` header value. In the case of multiple
+queues, a headers exchange will deliver a copy of a message to each
+queue, just like direct exchanges do. Distribution rules between
+consumers on a particular queue are the same as for a direct exchange.
 
 ### Headers Exchange Use Cases
 
-Headers exchanges can be looked upon as "direct exchanges on steroids" and because they route based on header values, they can be used as direct exchanges
-where the routing key does not have to be a string; it could be an integer or a hash (dictionary) for example.
+Headers exchanges can be looked upon as "direct exchanges on steroids"
+and because they route based on header values, they can be used as
+direct exchanges where the routing key does not have to be a string;
+it could be an integer or a hash (dictionary) for example.
 
 Some specific use cases:
 
@@ -886,15 +987,20 @@ Some specific use cases:
 
 ### Pre-declared Headers Exchanges
 
-AMQP 0.9.1 brokers [should](http://www.ietf.org/rfc/rfc2119.txt) implement a headers exchange type and pre-declare one instance with
-the name of `"amq.match"`. RabbitMQ also pre-declares one instance with the name of `"amq.headers"`. Applications can rely on that exchange always being available to them.
-Each vhost has a separate instance of those exchanges and they are *not shared across vhosts* for obvious reasons.
+AMQP 0.9.1 brokers [should](http://www.ietf.org/rfc/rfc2119.txt)
+implement a headers exchange type and pre-declare one instance with
+the name of `"amq.match"`. RabbitMQ also pre-declares one instance
+with the name of `"amq.headers"`. Applications can rely on that
+exchange always being available to them.  Each vhost has a separate
+instance of those exchanges and they are *not shared across vhosts*
+for obvious reasons.
 
 ## Custom Exchange Types
 
 ### x-random
 
 The [x-random AMQP exchange type](https://github.com/jbrisbin/random-exchange) is a custom exchange type developed as a RabbitMQ plugin by Jon Brisbin.
+
 To quote from the project README:
 
 > It is basically a direct exchange, with the exception that, instead of each consumer bound to that exchange with the same routing key
@@ -909,12 +1015,17 @@ Please refer to [RabbitMQ Extensions guide](/articles/rabbitmq_extensions.html)
 
 ### Message Acknowledgements and Their Relationship to Transactions and Publisher Confirms
 
-Consumer applications (applications that receive and process messages) may occasionally fail to process individual messages, or might just crash. Additionally,
-network issues might be experienced. This raises a question - "when should the AMQP broker remove messages from queues?" This topic is covered
-in depth in the [Queues guide](/articles/queues.html), including prefetching and examples.
+Consumer applications (applications that receive and process messages)
+may occasionally fail to process individual messages, or might just
+crash. Additionally, network issues might be experienced. This raises
+a question - "when should the AMQP broker remove messages from
+queues?" This topic is covered in depth in the [Queues guide](/articles/queues.html), including prefetching and examples.
 
-In this guide, we will only mention how message acknowledgements are related to AMQP transactions and the Publisher Confirms extension. Let us consider
-a publisher application (P) that communications with a consumer (C) using AMQP 0.9.1. Their communication can be graphically represented like this:
+In this guide, we will only mention how message acknowledgements are
+related to AMQP transactions and the Publisher Confirms extension. Let
+us consider a publisher application (P) that communications with a
+consumer (C) using AMQP 0.9.1. Their communication can be graphically
+represented like this:
 
 <pre>
 -----       -----       -----
@@ -924,11 +1035,15 @@ a publisher application (P) that communications with a consumer (C) using AMQP 0
 -----       -----       -----
 </pre>
 
-We have two network segments, S1 and S2. Each of them may fail. P is concerned with making sure that messages cross S1, while the broker (B) and C are concerned
-with ensuring that messages cross S2 and are only removed from the queue when they are processed successfully.
+We have two network segments, S1 and S2. Each of them may fail. P is
+concerned with making sure that messages cross S1, while the broker
+(B) and C are concerned with ensuring that messages cross S2 and are
+only removed from the queue when they are processed successfully.
 
-Message acknowledgements cover reliable delivery over S2 as well as successful processing. For S1, P has to use transactions (a heavyweight solution) or the more
-lightweight Publisher Confirms, a RabbitMQ-specific extension.
+Message acknowledgements cover reliable delivery over S2 as well as
+successful processing. For S1, P has to use transactions (a
+heavyweight solution) or the more lightweight Publisher Confirms, a
+RabbitMQ-specific extension.
 
 
 ## Binding Queues to Exchanges
@@ -954,12 +1069,13 @@ Exchanges are deleted using the `langohr.exchange/delete`:
 
 ### Auto-deleted exchanges
 
-Exchanges can be *auto-deleted*. To declare an exchange as auto-deleted, use the `:auto_delete` option on declaration:
+Exchanges can be *auto-deleted*. To declare an exchange as
+auto-deleted, use the `:auto_delete` option on declaration:
 
 ``` clojure
 (require '[langohr.exchange :as le])
 
-(le/declare ch "requests.crawling" "topic" :auto-delete true)
+(le/declare ch "requests.crawling" "topic" {:auto-delete true})
 ```
 
 
@@ -976,14 +1092,16 @@ See [Vendor-specific Extensions guide](/articles/rabbitmq_extensions.html)
 
 ## Wrapping Up
 
-Publishers publish messages to exchanges. Messages are then routed to queues according to rules called bindings
-that applications define. There are 4 built-in exchange types in RabbitMQ and it is possible to create custom
-types.
+Publishers publish messages to exchanges. Messages are then routed to
+queues according to rules called bindings that applications
+define. There are 4 built-in exchange types in RabbitMQ and it is
+possible to create custom types.
 
-Messages have a set of standard properties (e.g. type, content type) and can carry an arbitrary map
-of headers.
+Messages have a set of standard properties (e.g. type, content type)
+and can carry an arbitrary map of headers.
 
-Most functions related to exchanges are found in two Langohr namespaces:
+Most functions related to exchanges are found in two Langohr
+namespaces:
 
  * `langohr.exchange`
  * `langohr.basic`
