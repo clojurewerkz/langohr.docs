@@ -38,7 +38,7 @@ set to `true`:
 (ns langohr.examples
   (:require [langohr.exchange :as lx]))
 
-(lx/fanout ch "a.fanout" :durable true)
+(lx/fanout ch "a.fanout" {:durable true})
 ```
 
 ### Queue Durability
@@ -55,7 +55,7 @@ set to `true`:
 (ns langohr.examples
   (:require [langohr.queue :as lq]))
 
-(lq/declare ch "a.queue" :durable true)
+(lq/declare ch "a.queue" {:durable true})
 ```
 
 Durability of a queue does not make _messages_ that are routed to that
@@ -93,7 +93,7 @@ Set the `:persistent` option to `true` when using
 (ns langohr.examples
   (:require [langohr.queue :as lq]))
 
-(lb/publish ch "events" "log.info" :persistent true)
+(lb/publish ch "events" "log.info" {:persistent true})
 ```
 
 ### Clustering and High Availability
@@ -104,8 +104,8 @@ persistent messages. You need to use a cluster of brokers because
 otherwise, a single hardware problem may bring a broker down
 completely.
 
-RabbitMQ offers a number of high availability features for both scenarios with more
-(LAN) and less (WAN) reliable network connections.
+RabbitMQ offers a number of high availability features for both
+scenarios with more (LAN) and less (WAN) reliable network connections.
 
 See the [RabbitMQ clustering](http://www.rabbitmq.com/clustering.html)
 and [high availability](http://www.rabbitmq.com/ha.html) guides for
@@ -122,9 +122,8 @@ of individual nodes by using clustering, messages do
 not. Without mirroring, queue contents reside on exactly one node, thus the
 loss of a node will cause message loss.
 
-See the [RabbitMQ high availability
-guide](http://www.rabbitmq.com/ha.html) for more information about
-mirrored queues.
+See the [RabbitMQ high availability guide](http://www.rabbitmq.com/ha.html)
+for more information about mirrored queues.
 
 
 ## What to Read Next
