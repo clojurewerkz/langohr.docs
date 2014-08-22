@@ -76,7 +76,8 @@ Default connection parameters are
 
 ### Using Connection Strings
 
-It is also possible to specify connection parameters as a URI string using the `:uri` option:
+It is also possible to specify connection parameters as a URI string
+using the `:uri` option:
 
 ``` clojure
 (require '[langohr.core :as rmq])
@@ -85,8 +86,10 @@ It is also possible to specify connection parameters as a URI string using the `
 ```
 
 
-Unfortunately, there is no URI standard for AMQP URIs, so while several schemes used in the wild share the same basic idea, they differ in some details.
-The implementation used by Langohr aims to encourage URIs that work as widely as possible.
+Unfortunately, there is no URI standard for AMQP URIs, so while
+several schemes used in the wild share the same basic idea, they
+differ in some details.  The implementation used by Langohr aims to
+encourage URIs that work as widely as possible.
 
 Here are some examples of valid AMQP URIs:
 
@@ -98,11 +101,18 @@ Here are some examples of valid AMQP URIs:
 
 The URI scheme should be "amqp", or "amqps" if SSL is required.
 
-The host, port, username and password are represented in the authority component of the URI in the same way as in http URIs.
+The host, port, username and password are represented in the authority
+component of the URI in the same way as in http URIs.
 
-The vhost is obtained from the first segment of the path, with the leading slash removed.  The path should contain only a single segment (i.e, the only slash in it should be the leading one). If the vhost is to include slashes or other reserved URI characters, these should be percent-escaped.
+The vhost is obtained from the first segment of the path, with the
+leading slash removed.  The path should contain only a single segment
+(i.e, the only slash in it should be the leading one). If the vhost is
+to include slashes or other reserved URI characters, these should be
+percent-escaped.
 
-Here are some examples that demonstrate how `langohr.core/settings-from` parses out the vhost from connection URIs:
+Here are some examples that demonstrate how
+`langohr.core/settings-from` parses out the vhost from connection
+URIs:
 
 <pre>
 "amqp://dev.rabbitmq.com"            ;; => vhost is nil, so default ("/") will be used
@@ -116,7 +126,8 @@ Here are some examples that demonstrate how `langohr.core/settings-from` parses 
 
 ### Connection Failures
 
-If a connection does not succeed, Langohr will raise one of the following exceptions:
+If a connection does not succeed, Langohr will raise one of the
+following exceptions:
 
  * [java.net.ConnectException](http://docs.oracle.com/javase/7/docs/api/java/net/ConnectException.html) will be raised if there is no service listening on the remote address/port, for example, due to a port misconfiguration
  * [java.net.UnknownHostException](http://docs.oracle.com/javase/7/docs/api/java/net/UnknownHostException.html) will be raised if the host cannot be resolved
@@ -127,16 +138,21 @@ If a connection does not succeed, Langohr will raise one of the following except
 
 ### The RABBITMQ_URL Environment Variable
 
-If no arguments are passed to `langohr.core/connect` but the `RABBITMQ_URL` environment variable is set, Langohr will use it as connection
-URI.
+If no arguments are passed to `langohr.core/connect` but the
+`RABBITMQ_URL` environment variable is set, Langohr will use it as
+connection URI.
 
 ## Opening a Channel
 
-Some applications need multiple connections to RabbitMQ. However, it is undesirable to keep many TCP connections open at the same time because
-doing so consumes system resources and makes it more difficult to configure firewalls. AMQP 0-9-1 connections are multiplexed with channels that can
-be thought of as "lightweight connections that share a single TCP connection".
+Some applications need multiple connections to RabbitMQ. However, it
+is undesirable to keep many TCP connections open at the same time
+because doing so consumes system resources and makes it more difficult
+to configure firewalls. AMQP 0-9-1 connections are multiplexed with
+channels that can be thought of as "lightweight connections that share
+a single TCP connection".
 
-To open a channel, use the `langohr.channel/open` function that takes a connection:
+To open a channel, use the `langohr.channel/open` function that takes
+a connection:
 
 ``` clojure
 (require '[langohr.core    :as rmq])
@@ -148,8 +164,9 @@ To open a channel, use the `langohr.channel/open` function that takes a connecti
   ch)
 ```
 
-Channels are typically long lived: you open one or more of them and use them for a period of time, as opposed to opening
-a new channel for each published message, for example.
+Channels are typically long lived: you open one or more of them and
+use them for a period of time, as opposed to opening a new channel for
+each published message, for example.
 
 
 ## Closing Channels
@@ -170,9 +187,10 @@ and feel free to ask [on the mailing list](https://groups.google.com/forum/#!for
 
 ## Wrapping Up
 
-There are two ways to specify connection parameters with Langohr: with a map of parameters or via URI string.
-Connection issues are indicated by various exceptions. If the `RABBITMQ_URL` env variable is set, Langohr
-will use its value as RabbitMQ connection URI.
+There are two ways to specify connection parameters with Langohr: with
+a map of parameters or via URI string.  Connection issues are
+indicated by various exceptions. If the `RABBITMQ_URL` env variable is
+set, Langohr will use its value as RabbitMQ connection URI.
 
 
 ## What to Read Next
