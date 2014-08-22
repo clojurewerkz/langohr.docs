@@ -162,8 +162,9 @@ Callbacks are registered on connections and channels using `langohr.core/on-reco
                           (start-consumer ch q)))
 ```
 
-During recovery, the callback will be invoked **after connection and channels have been recovered**
-and passed the connection or channel it was registered with.
+During recovery, the callback will be invoked **after connection and
+channels have been recovered** and passed the connection or channel it
+was registered with.
 
 The following example demonstrates how a queue with a consumer is
 recovered using a recovery hook:
@@ -187,8 +188,8 @@ recovered using a recovery hook:
 
 (defn start-consumer
   [ch ^String q]
-  (lq/declare ch q :exclusive false :auto-delete false)
-    (lc/subscribe ch q message-handler :auto-ack true))
+  (lq/declare ch q {:exclusive false :auto-delete false})
+    (lc/subscribe ch q message-handler {:auto-ack true}))
 
 (defn -main
   [& args]
@@ -214,16 +215,16 @@ recovered using a recovery hook:
 
 ## Channel-level Exceptions
 
-Channel-level exceptions are more common than connection-level ones and often indicate
-issues applications can recover from (such as consuming from or trying to delete
-a queue that does not exist).
+Channel-level exceptions are more common than connection-level ones
+and often indicate issues applications can recover from (such as
+consuming from or trying to delete a queue that does not exist).
 
 With Langohr, channel-level exceptions are raised as Java exceptions
 (`IOException` or `ShutdownSignalException`) that provide access to
 the underlying `channel.close` method information.
 
-Shutdown exceptions can be inspected using functions in the `langohr.shutdown`
-namespace:
+Shutdown exceptions can be inspected using functions in the
+`langohr.shutdown` namespace:
 
 ``` clojure
 (require '[langohr.queue    :as lhq])
