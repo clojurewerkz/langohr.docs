@@ -380,7 +380,8 @@ This piece of code
                    (println (format "[consumer] %s received %s" username (String. payload "UTF-8"))))]
   (lq/declare ch queue-name :exclusive false :auto-delete true)
   (lq/bind    ch queue-name topic-name)
-  (lc/subscribe ch queue-name handler :auto-ack true))```
+  (lc/subscribe ch queue-name handler :auto-ack true))
+```
 
 is similar to the subscription code that we used for message delivery
 previously, but also does a bit more: it sets up a binding between the
