@@ -250,7 +250,7 @@ on is closed.
 ## Binding Queues to Exchanges
 
 In order to receive messages, a queue needs to be bound to at least
-one exchange. Most of the time binding is explcit (done by
+one exchange. Most of the time binding is explicit (done by
 applications). To bind a queue to an exchange, use the
 `langohr.queue/bind` function:
 
@@ -701,10 +701,10 @@ message to the next consumer in sequence (this kind of load balancing
 is known as *round-robin*). This means that some messages will be
 delivered to consumer #1 and some to consumer #2.
 
-To demonstrate message redelivery we make consumer #1 randomly select
+To demonstrate message redelivery we make consumer #2 randomly select
 which messages to acknowledge. After 4 seconds we disconnect it (to
 imitate a crash).  When that happens, the RabbitMQ redelivers
-unacknowledged messages to consumer #2 which acknowledges them
+unacknowledged messages to consumer #1 which acknowledges them
 unconditionally. After 10 seconds, this example closes all outstanding
 connections and exits.
 
@@ -728,7 +728,7 @@ consumer1 received a message, i = 9, redelivery? = false, acking...
 consumer1 received a message, i = 10, redelivery? = false, acking...
 ```
 
-As we can see, consumer #1 did not acknowledge three messages (labelled 0, 2 and 4):
+As we can see, consumer #2 did not acknowledge three messages (labelled 0, 2 and 4):
 
 ``` clojure
 consumer2 received a message, i = 0
@@ -736,7 +736,7 @@ consumer2 received a message, i = 2
 consumer2 received a message, i = 4
 ```
 
-and then, once consumer #1 had "crashed", those messages were
+and then, once consumer #2 had "crashed", those messages were
 immediately redelivered to the consumer #1:
 
 ```
