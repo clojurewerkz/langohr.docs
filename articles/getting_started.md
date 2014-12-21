@@ -25,7 +25,7 @@ This guide covers Langohr 3.0.x.
 
 ## Supported Clojure Versions
 
-Langohr requires Clojure 1.4+. The latest stable release is recommended.
+Langohr requires Clojure 1.6+. The latest stable release is recommended.
 
 
 ## Supported RabbitMQ Versions
@@ -88,14 +88,12 @@ and *may not work with Langohr* (you will need at least RabbitMQ v2.0 for use wi
 
 ## Dependency
 
-Adding Langohr Dependency To Your Project.
-
 Langohr artifacts are [released to Clojars](https://clojars.org/com.novemberain/langohr).
 
 ### With Leiningen
 
 ``` clojure
-[com.novemberain/langohr "3.0.0-rc4"]
+[com.novemberain/langohr "3.0.0"]
 ```
 
 ### With Maven
@@ -115,7 +113,7 @@ And then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>langohr</artifactId>
-  <version>3.0.0-rc4</version>
+  <version>3.0.0</version>
 </dependency>
 ```
 
