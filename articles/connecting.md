@@ -39,6 +39,7 @@ Map options that Langohr will recognize are
  * `:connection-timeout`
  * `:ssl`
  * `:ssl-context`
+ * `:authentication-mechanism`
  * `:executor`
  * `:automatically-recover`
 
