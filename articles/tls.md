@@ -32,7 +32,7 @@ To use TLS with RabbitMQ, you need a few things:
 ## Generating Certificates For Development
 
 The easiest way to generate a CA, server and client keys and certificates is by using
-[tls-gen](https://github.com/ruby-amqp/tls-gen/). It requires `openssl` and `make` to be
+[tls-gen](https://github.com/michaelklishin/tls-gen/). It requires `openssl` and `make` to be
 available.
 
 See [RabbitMQ TLS/SSL guide](http://www.rabbitmq.com/ssl.html) for more information
