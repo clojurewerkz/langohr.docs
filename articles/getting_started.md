@@ -8,7 +8,7 @@ layout: article
 This guide is a quick tutorial that helps you to get started with the AMQP 0.9.1 specification in general and the Langohr in particular.
 It should take about 15 minutes to read and study the provided code examples. This guide covers:
 
- * Installing RabbitMQ, a mature popular server implementation of the AMQP protocol.
+ * Installing RabbitMQ, a mature multi-protocol messaging broker.
  * Adding Langohr dependency with [Leiningen](http://leiningen.org) or [Maven](http://maven.apache.org/)
  * Running a "Hello, world" messaging example that is a simple demonstration of 1:1 communication.
  * Creating a "Twitter-like" publish/subscribe example with one publisher and four subscribers that demonstrates 1:n communication.
