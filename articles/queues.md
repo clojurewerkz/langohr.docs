@@ -418,7 +418,7 @@ loops and processes messages forever:
 (lcons/subscribe ch "images.resize"
                  (fn [ch metadata ^bytes payload]
                    (println (format "[consumer] %s received %s" username (String. payload "UTF-8"))))
-                 :auto-ack true)
+                 {:auto-ack true})
 ```
 
 The same example in context:
