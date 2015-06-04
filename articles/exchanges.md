@@ -1010,7 +1010,7 @@ This plugin is licensed under [Mozilla Public License 1.1](http://www.mozilla.or
 
 ## Using the Publisher Confirms Extension
 
-Please refer to [RabbitMQ Extensions guide](/articles/rabbitmq_extensions.html)
+Please refer to [RabbitMQ Extensions guide](/articles/extensions.html)
 
 
 ### Message Acknowledgements and Their Relationship to Transactions and Publisher Confirms
@@ -1086,7 +1086,7 @@ See [Durability guide](/articles/durability.html)
 
 ## RabbitMQ Extensions Related to Exchanges
 
-See [Vendor-specific Extensions guide](/articles/rabbitmq_extensions.html)
+See [Vendor-specific Extensions guide](/articles/extensions.html)
 
 
 
@@ -1113,7 +1113,7 @@ The documentation is organized as [a number of guides](/articles/guides.html), c
 We recommend that you read the following guides first, if possible, in this order:
 
  * [Bindings](/articles/bindings.html)
- * [RabbitMQ Extensions to AMQP 0.9.1](/articles/rabbitmq_extensions.html)
+ * [RabbitMQ Extensions to AMQP 0.9.1](/articles/extensions.html)
  * [Durability and Related Matters](/articles/durability.html)
  * [Error Handling and Recovery](/articles/error_handling.html)
  * [Troubleshooting](/articles/troubleshooting.html)
