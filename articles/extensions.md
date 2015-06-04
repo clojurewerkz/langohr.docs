@@ -60,11 +60,11 @@ node.
 ### How To Use It With Langohr
 
 To use publisher confirms, first put the channel into confirmation
-mode using the `` function:
+mode using the `langohr.confirm/select` function:
 
 ``` clojure
 (ns langohr.examples
-  (:require [langohr.confirms :as lcf]))
+  (:require [langohr.confirm :as lcf]))
 
 (lcf/select ch)
 ```
