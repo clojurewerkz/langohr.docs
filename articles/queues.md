@@ -1039,7 +1039,7 @@ To delete a queue, use the `langohr.queue/delete` function:
 ``` clojure
 (require '[langohr.queue :as lq])
 
-(lb/delete channel "events.summery.22.09.2012")
+(lq/delete channel "events.summery.22.09.2012")
 ```
 
 When a queue is deleted, all of the messages in it are deleted as
