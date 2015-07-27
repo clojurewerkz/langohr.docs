@@ -20,7 +20,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 3.2.x.
+This guide covers Langohr 3.3.x.
 
 
 ## Supported Clojure Versions
@@ -31,7 +31,7 @@ Langohr requires Clojure 1.6+. The latest stable release is recommended.
 ## Supported RabbitMQ Versions
 
 Langohr works with RabbitMQ versions 2.x and 3.x. Some features may only be available in more recent releases
-(for example, 3.0).
+(for example, 3.4.x or 3.5.x).
 
 
 ## Langohr Overview
@@ -93,7 +93,7 @@ Langohr artifacts are [released to Clojars](https://clojars.org/com.novemberain/
 ### With Leiningen
 
 ``` clojure
-[com.novemberain/langohr "3.0.1"]
+[com.novemberain/langohr "3.3.0"]
 ```
 
 ### With Maven
@@ -113,7 +113,7 @@ And then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>langohr</artifactId>
-  <version>3.0.1</version>
+  <version>3.3.0</version>
 </dependency>
 ```
 
