@@ -349,7 +349,7 @@ basketball. Here is the code:
     (doseq [u users]
       (start-consumer ch ex u))
     (lb/publish ch ex "" "BOS 101, NYK 89" {:content-type "text/plain" :type "scores.update"})
-    (lb/publish ch ex "" "ORL 85, ALT 88"  {:content-type "text/plain" :type "scores.update"})
+    (lb/publish ch ex "" "ORL 85, ATL 88"  {:content-type "text/plain" :type "scores.update"})
     (Thread/sleep 2000)
     (rmq/close ch)
     (rmq/close conn)))
@@ -392,7 +392,7 @@ publishing: it is an empty string.
 
 ``` clojure
 (lb/publish ch ex "" "BOS 101, NYK 89" {:content-type "text/plain" :type "scores.update"})
-(lb/publish ch ex "" "ORL 85, ALT 88"  {:content-type "text/plain" :type "scores.update"})
+(lb/publish ch ex "" "ORL 85, ATL 88"  {:content-type "text/plain" :type "scores.update"})
 ```
 
 Fanout exchanges simply put a copy of the message in each queue bound
