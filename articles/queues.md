@@ -116,7 +116,7 @@ empty string) and returns the name of the queue:
 
 (let [conn  (rmq/connect)
       ch    (lch/open conn)
-      queue (lq/declare-server-named ch :exclusive true)]
+      queue (lq/declare-server-named ch {:exclusive true})]
   (comment ...))
 ```
 

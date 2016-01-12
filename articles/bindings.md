@@ -52,7 +52,7 @@ If an application wants to connect a queue to an exchange, it needs to
 ## Binding Queues To Exchanges
 
 In order to receive messages, a queue needs to be bound to at least
-one exchange. Most of the time binding is explcit (done by
+one exchange. Most of the time binding is explicit (done by
 applications). To bind a queue to an exchange, use the
 `langohr.queue/bind` function:
 
