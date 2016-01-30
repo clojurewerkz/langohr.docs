@@ -687,7 +687,7 @@ The documentation is organized as [a number of guides](/articles/guides.html), c
 We recommend that you read the following guides first, if possible, in this order:
 
  * [AMQP Concepts](http://www.rabbitmq.com/tutorials/amqp-concepts.html)
- * [Conneciting To The Broker](/articles/connecting.html)
+ * [Connecting To The Broker](/articles/connecting.html)
  * [Queues and Consumers](/articles/queues.html)
  * [Exchanges and Publishing](/articles/exchanges.html)
  * [Bindings](/articles/bindings.html)
