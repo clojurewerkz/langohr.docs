@@ -13,7 +13,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 3.5.x.
+This guide covers Langohr 3.6.x.
 
 
 
@@ -34,6 +34,7 @@ Map options that Langohr will recognize are
  * `:username`
  * `:password`
  * `:vhost`
+ * `:connection-name`
  * `:requested-heartbeat`
  * `:requested-channel-max`
  * `:connection-timeout`
@@ -73,6 +74,11 @@ Default connection parameters are
 ``` clojure
 {:host "localhost" :port 5672 :username "guest" :password "guest" :vhost "/"}
 ```
+
+#### Client-provided Connection Name
+
+If `:connection-name` is specified and RabbitMQ server is at version `3.6.2` or later,
+this name will be displayed in the management UI.
 
 
 ### Using Connection Strings
