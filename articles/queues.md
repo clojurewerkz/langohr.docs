@@ -439,9 +439,8 @@ The same example in context:
   (lcons/subscribe ch queue-name handler {:auto-ack true}))
 ```
 
-It will block the calling thread, so it is usually started in a
-separate thread. That thread should take care of handling I/O
-exceptions that may arise during the consumer's lifespan.
+Delivered messages will be dispatched in a thread pool with a
+per-channel ordering guarantee.
 
 
 ### Accessing Message Metadata

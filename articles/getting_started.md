@@ -249,8 +249,9 @@ Now that we have a queue, we can start consuming messages from it:
 (lc/subscribe ch queue-name message-handler {:auto-ack true})
 ```
 
-We use `langohr.queue/subscribe` to start a consumer. This creates a
-new thread which will consume the messages.
+We use `langohr.queue/subscribe` to start a consumer. This function
+returns immediately and the handler provided (`message-handler`) will
+be invoked for every inbound delivery.
 
 Finally, here's the handling function:
 
