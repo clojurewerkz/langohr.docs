@@ -20,12 +20,16 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 4.x.
+This guide covers Langohr 5.x.
 
 
 ## Supported Clojure Versions
 
-Langohr requires Clojure 1.7+. The latest stable release is recommended.
+Langohr requires Clojure 1.8+. The latest stable release is recommended.
+
+## Supported JDK Versions
+
+Langohr requires JDK 8 or newer.
 
 
 ## Supported RabbitMQ Versions
@@ -93,7 +97,7 @@ Langohr artifacts are [released to Clojars](https://clojars.org/com.novemberain/
 ### With Leiningen
 
 ``` clojure
-[com.novemberain/langohr "4.2.0"]
+[com.novemberain/langohr "5.0.0"]
 ```
 
 ### With Maven
@@ -113,7 +117,7 @@ And then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>langohr</artifactId>
-  <version>4.2.0</version>
+  <version>5.0.0</version>
 </dependency>
 ```
 
