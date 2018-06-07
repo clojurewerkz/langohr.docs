@@ -277,7 +277,7 @@ message producers need to specify it:
         ename "langohr.examples.direct"]
     (le/declare ch ename "direct")
     (let [q (:queue (lq/declare ch "" {:exclusive false :auto-delete true}))]
-      (lq/bind ch q ename :routing-key "pings")
+      (lq/bind ch q ename {:routing-key "pings"})
       (start-consumer ch q))
     (lb/publish ch ename "pings" "Ping" {:content-type "text/plain"})
     (Thread/sleep 2000)
