@@ -1023,7 +1023,7 @@ using the `langohr.queues/purge` function:
 ``` clojure
 (require '[langohr.queue :as lq])
 
-(lb/purge channel "events.recent")
+(lq/purge channel "events.recent")
 ```
 
 Note that this example purges a newly declared queue with a unique
