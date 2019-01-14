@@ -20,7 +20,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Langohr does this guide cover?
 
-This guide covers Langohr 5.x.
+This guide covers Langohr 5.1.x.
 
 
 ## Supported Clojure Versions
@@ -35,7 +35,7 @@ Langohr requires JDK 8 or newer.
 ## Supported RabbitMQ Versions
 
 Langohr works with RabbitMQ versions 2.x and 3.x. Some features may only be available in more recent releases
-(for example, 3.6.x or 3.7.x).
+(for example, 3.7.x).
 
 
 ## Langohr Overview
@@ -72,7 +72,10 @@ Here is what Langohr *does not* try to be:
 ## Installing RabbitMQ
 
 The RabbitMQ site has a good [installation guide](http://www.rabbitmq.com/install.html) that addresses many operating systems.
-On Mac OS X, the fastest way to install RabbitMQ is with [Homebrew](http://mxcl.github.com/homebrew/):
+
+### MacOS
+
+On MacOS, the fastest way to install RabbitMQ is with [Homebrew](http://mxcl.github.com/homebrew/):
 
     brew install rabbitmq
 
@@ -80,15 +83,13 @@ then run it:
 
     rabbitmq-server
 
-On Debian and Ubuntu, you can either [download the RabbitMQ .deb package](http://www.rabbitmq.com/server.html) and install it with [dpkg](http://www.debian.org/doc/FAQ/ch-pkgtools.en.html) or make use of the [RabbitMQ apt repository](http://www.rabbitmq.com/debian.html#apt).
+### Ubuntu and Debian
 
-For RPM-based distributions like RedHat or CentOS, the RabbitMQ team provides an [RPM package](http://www.rabbitmq.com/install.html#rpm).
+On Debian and Ubuntu, the recommended way is to use a [RabbitMQ apt repository](https://www.rabbitmq.com/install-debian.html).
 
+### RPM Distributions
 
-<div class="alert alert-error">
-  <strong>Note:</strong> The RabbitMQ package that ships with some of the recent Ubuntu versions (for example, 10.10 and 11.04) is outdated
-and *may not work with Langohr* (you will need at least RabbitMQ v2.0 for use with this guide).
-</div>
+For RPM-based distributions like Fedora, RHEL or CentOS, the RabbitMQ team provides an [RPM package](https://www.rabbitmq.com/install-rpm.html).
 
 ## Dependency
 
@@ -97,7 +98,7 @@ Langohr artifacts are [released to Clojars](https://clojars.org/com.novemberain/
 ### With Leiningen
 
 ``` clojure
-[com.novemberain/langohr "5.0.0"]
+[com.novemberain/langohr "5.1.0"]
 ```
 
 ### With Maven
@@ -117,7 +118,7 @@ And then the dependency:
 <dependency>
   <groupId>com.novemberain</groupId>
   <artifactId>langohr</artifactId>
-  <version>5.0.0</version>
+  <version>5.1.0</version>
 </dependency>
 ```
 
