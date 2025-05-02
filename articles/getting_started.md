@@ -71,7 +71,7 @@ Here is what Langohr *does not* try to be:
 
 ## Installing RabbitMQ
 
-The RabbitMQ site has a good [installation guide](http://www.rabbitmq.com/install.html) that addresses many operating systems.
+The RabbitMQ site has a good [installation guide](https://www.rabbitmq.com/docs/download) that addresses many operating systems.
 
 ### MacOS
 
